@@ -1077,13 +1077,12 @@ function pastView() {
     const good = list.filter((x) => x.ok).length;
     const hasSel = openDate && list.some((x) => x.k === openDate);
     const g = $(`<details class="card past-group"${hasSel ? " open" : ""}>
-      <summary><span class="past-name">${esc(tp)}</span><span class="past-count">${good}/${list.length} bonnes réponses</span></summary>
+      <summary><span class="past-name">${esc(tp)}</span><span class="past-count">${list.length}</span></summary>
       <ul class="sum-list"></ul>
     </details>`);
     const ul = g.querySelector(".sum-list");
     list.forEach((x) => {
       ul.appendChild($(`<li class="${x.k === openDate ? "sel" : ""}">
-        <span class="dot ${x.ok === null ? "" : x.ok ? "ok" : "ko"}"></span>
         <div class="sum-body">
           <span class="past-date">${esc(longDate(x.k))}</span>
           <span class="learn-a">${esc(x.c.retenir || x.c.correction)}</span>
