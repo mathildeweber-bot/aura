@@ -363,6 +363,8 @@ body.in-quiz { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 .past-name { flex: 1; }
 .past-count { font-size: 12px; font-weight: 600; color: var(--muted); }
 .past-group .sum-list { margin-top: 10px; }
+.learn-a { display: block; font-weight: 700; font-size: 16px; line-height: 1.35; }
+.learn-t { display: block; font-size: 15px; line-height: 1.45; }
 .past-date { font-family: var(--label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
 .past-page li.sel { background: #fff6d6; border-radius: 12px; }
 .past-btn { margin-top: 2px; }
@@ -535,6 +537,7 @@ const DAYS = {
         hook: "Le rayon surgelés, nouveau front de la géopolitique.",
         question: "En octobre, une cyberattaque a déréglé les frigos de centaines de supermarchés français, et la France l'a officiellement attribuée à l'Iran.",
         answer: ["Vrai"],
+        retenir: "La France a attribué à l'Iran une cyberattaque qui a déréglé les frigos de 700 supermarchés en octobre.",
         correction: "Vrai. Des pirates ont déréglé les frigos d'environ 700 magasins, avec au moins 15 départs de feu. Le 9 novembre, la France a désigné une unité des Gardiens de la révolution iraniens, ce qu'elle fait rarement aussi publiquement.",
         link: { label: "Le Monde, 16 novembre 2026", url: "https://www.lemonde.fr/international/article/2026/11/16/cyberattaque-contre-des-refrigerateurs-de-supermarches-le-jour-ou-la-france-a-denonce-l-iran_6812161_3210.html", note: "Article réservé aux abonnés." }
       },
@@ -544,6 +547,7 @@ const DAYS = {
         question: "Quelle personnalité sportive a annoncé le 9 novembre sa candidature à l'élection présidentielle de 2027 ?",
         options: ["Teddy Riner", "Tony Parker", "Marie-José Pérec", "Kylian Mbappé"],
         answer: ["A"],
+        retenir: "Le judoka Teddy Riner est candidat à la présidentielle de 2027, « ni de droite ni de gauche ».",
         correction: "Teddy Riner se dit « ni de droite ni de gauche ». Une semaine après son annonce, il est crédité de 4,5 % des intentions de vote.",
         link: { label: "C dans l'air, 16 novembre 2026", url: "https://octopus.saooti.com/main/pub/podcast/3020184", note: "Gratuit." }
       },
@@ -553,6 +557,7 @@ const DAYS = {
         question: "Selon la climatologue Valérie Masson-Delmotte, ancienne coprésidente d'un groupe du GIEC, pourquoi les femmes sont-elles plus menacées lors des inondations dans de nombreuses régions du monde ?",
         options: ["Elles vivent plus souvent au bord des rivières.", "Beaucoup n'apprennent pas à nager et reçoivent moins les alertes.", "Elles sont moins nombreuses dans les zones urbaines.", "Les secours les évacuent en dernier."],
         answer: ["B"],
+        retenir: "Lors des inondations, les femmes sont plus menacées : beaucoup n'apprennent pas à nager et reçoivent moins les alertes.",
         correction: "Beaucoup de filles n'apprennent pas à nager, et dans certains foyers un seul téléphone reçoit les alertes. Pour Valérie Masson-Delmotte, le réchauffement aggrave des inégalités qui existent déjà.",
         link: { label: "Chaleur humaine, Le Monde, 3 novembre 2026", url: "https://www.lemonde.fr/podcast-chaleur-humaine/", note: "Épisode « La bataille pour le climat est-elle féministe ? ». Gratuit." }
       }
@@ -567,6 +572,7 @@ const DAYS = {
         question: "Selon la PDG de Nexity, premier promoteur immobilier de France, quelle est la conséquence « invisible » de la crise du logement ?",
         options: ["Les Français partent en masse vivre à la campagne.", "Les Français renoncent : à fonder une famille, à quitter le domicile de leurs parents, à accepter un travail.", "Les Français achètent plus tôt, de peur que les prix montent encore.", "Les Français se tournent massivement vers la location saisonnière."],
         answer: ["B"],
+        retenir: "Pour la PDG de Nexity, la crise du logement pousse les Français à renoncer à leurs projets de vie.",
         correction: "Pour Véronique Bédague, faute de logement, on renonce à des projets de vie, et ce renoncement tourne à la colère. Le ministre du Logement parle de la pire crise depuis la Seconde Guerre mondiale.",
         link: { label: "L'invité de 8h20, France Inter, 16 novembre 2026", url: "https://www.radiofrance.fr/franceinter/podcasts/l-invite-de-8h20-le-grand-entretien/l-invite-de-8h20-le-grand-entretien-du-lundi-16-novembre-2026-3504749", note: "Gratuit." }
       },
@@ -575,6 +581,7 @@ const DAYS = {
         hook: "Bienvenue à Gattaca, ce n'était pas censé être un tutoriel.",
         question: "Modifier les gènes d'un embryon avant une FIV, pour qu'il naisse ainsi, est aujourd'hui autorisé dans la plupart des pays.",
         answer: ["Faux"],
+        retenir: "Modifier les gènes d'un embryon est interdit presque partout, mais des start-up veulent changer la loi.",
         correction: "Faux. C'est interdit presque partout. Des start-up de la Silicon Valley veulent pourtant faire changer la loi, et des scientifiques craignent un retour de l'eugénisme.",
         link: { label: "L'Heure du Monde, 16 novembre 2026", url: "https://podcasts.lemonde.fr/lheure-du-monde/202611160300-pourquoi-la-silicon-valley-veut-fabriquer-des-bebes-genetiqu", note: "Gratuit." }
       },
@@ -584,6 +591,7 @@ const DAYS = {
         question: "Depuis juillet, l'Union européenne taxe les petits colis commandés sur Shein, Temu ou AliExpress. Pourquoi ?",
         options: ["Beaucoup de ces produits ne respectent pas les normes européennes.", "Ils font une concurrence déloyale aux commerçants européens.", "Pour répondre aux droits de douane imposés par la Chine sur les produits européens.", "Pour limiter les achats en ligne pendant les fêtes de fin d'année."],
         answer: ["A", "B"],
+        retenir: "L'UE taxe les petits colis de Shein ou Temu : produits souvent hors normes et concurrence déloyale.",
         correction: "Ces colis entraient sans droits de douane et presque sans contrôle, avec parfois des produits dangereux. Les vendeurs européens, eux, respectent les normes et paient la douane.",
         link: { label: "Les actus du jour, HugoDécrypte, 14 novembre 2026", url: "https://feeds.acast.com/public/shows/95497e34-ecc2-596a-b910-bb3342918621", note: "Épisode « La fin annoncée de Shein et Temu, ils ripostent ». Gratuit." }
       }
@@ -598,6 +606,7 @@ const DAYS = {
         question: "Marine Le Pen a présenté ce mardi sa réforme des retraites pour la présidentielle. Que propose-t-elle ?",
         options: ["Reculer l'âge de départ à 65 ans.", "Supprimer l'âge légal de départ.", "Revenir à un départ entre 60 et 62 ans, selon l'âge du premier emploi, et ajouter une part de capitalisation.", "Remplacer les retraites par un revenu universel."],
         answer: ["C"],
+        retenir: "Marine Le Pen propose un départ à la retraite entre 60 et 62 ans, avec une part de capitalisation.",
         correction: "Elle veut abolir la réforme Borne et ajouter une part de capitalisation, une épargne placée pour financer les pensions. Ses adversaires de droite et du centre jugent le projet « injuste et bancal ».",
         link: { label: "Le Monde, 17 novembre 2026", url: "https://www.lemonde.fr/politique/article/2026/11/17/presidentielle-2027-marine-le-pen-presente-sa-reforme-des-retraites-et-promet-que-des-centaines-de-milliers-de-travailleurs-partiront-plus-tot-qu-avec-la-reforme-borne_6812963_823448.html", note: "Article réservé aux abonnés." }
       },
@@ -607,6 +616,7 @@ const DAYS = {
         question: "Donald Trump, Xi Jinping et Vladimir Poutine doivent se retrouver cette semaine en Chine. Certains observateurs parlent déjà d'un « nouveau Yalta ». De quoi s'agit-il ?",
         options: ["D'un traité de paix signé entre la Russie et l'Ukraine.", "D'une référence à la conférence de 1945 où les vainqueurs de la guerre ont dessiné l'après-guerre, souvent vue comme un partage du monde.", "D'un nouvel accord commercial sur les droits de douane.", "D'une station balnéaire chinoise où se tient le sommet."],
         answer: ["B"],
+        retenir: "Un « nouveau Yalta » renvoie à la conférence de 1945, symbole d'un monde partagé entre grandes puissances.",
         correction: "En 1945 à Yalta, Roosevelt, Churchill et Staline ont préparé l'après-guerre, et la conférence est restée le symbole d'un monde partagé. D'où la crainte que les grands décident entre eux du sort d'autres pays.",
         link: { label: "C dans l'air, l'invité du 16 novembre 2026", url: "https://octopus.saooti.com/main/pub/podcast/3019352", note: "Avec Thomas Gomart. Gratuit." }
       },
@@ -616,6 +626,7 @@ const DAYS = {
         question: "Nuits à 30 degrés, appartements transformés en étuves : l'été 2026 a montré que nos logements ne sont pas faits pour la chaleur. Parmi les logements où l'on vivra en 2050, quelle part existe déjà aujourd'hui ?",
         options: ["Moins de 10 %.", "Environ 30 %.", "Environ 50 %.", "Environ 80 %."],
         answer: ["D"],
+        retenir: "80 % des logements de 2050 existent déjà : pour affronter la chaleur, il faut rénover l'existant.",
         correction: "La France de 2050 est déjà presque toute bâtie : on ne s'adaptera pas avec du neuf. Pour la géographe Magali Reghezza, il faut rénover l'existant, ce qui protège l'été comme l'hiver.",
         link: { label: "Chaleur humaine, Le Monde, 17 novembre 2026", url: "https://www.lemonde.fr/podcast-chaleur-humaine/", note: "Épisode « Comment ne pas revivre l'été 2026 ? ». Passage sur le logement vers 47:00. Gratuit." }
       }
@@ -630,6 +641,7 @@ const DAYS = {
         question: "Mardi soir, les députés ont voté un amendement du RN sur les logements mal isolés. Que change-t-il ?",
         options: ["Il interdit de vendre un logement mal isolé.", "Il supprime toutes les interdictions de louer un logement à cause de sa mauvaise note énergétique.", "Il oblige les propriétaires à installer la climatisation.", "Il rend la rénovation gratuite pour tous les locataires."],
         answer: ["B"],
+        retenir: "Les députés ont voté la fin des interdictions de louer les logements mal isolés. Le texte n'est pas définitif.",
         correction: "Depuis 2025, les logements classés G ne pouvaient plus être loués, et les F puis les E devaient suivre. Pour les uns, c'est plus de logements à louer, pour les autres des locataires dans des passoires. Le texte n'est pas encore définitif.",
         link: { label: "Le Monde, 17 novembre 2026", url: "https://www.lemonde.fr/politique/article/2026/11/17/logement-l-assemblee-vote-un-amendement-du-rn-supprimant-toutes-les-interdictions-de-location-liees-au-dpe_6813044_823448.html", note: "Article réservé aux abonnés." }
       },
@@ -639,6 +651,7 @@ const DAYS = {
         question: "GTA VI sort ce jeudi 19 novembre. C'est l'objet culturel le plus attendu de la décennie. On y vole des voitures et on fuit la police. Pourtant, la série est connue pour bien plus qu'une histoire de gangsters. Pour quoi ?",
         options: ["Sa satire de la société américaine.", "Ses leçons pour apprendre à conduire.", "Son histoire tirée de faits réels en France.", "Ses graphismes en noir et blanc."],
         answer: ["A"],
+        retenir: "Derrière les courses-poursuites, la série GTA est une satire de la société américaine.",
         correction: "Derrière les courses-poursuites, GTA caricature l'Amérique : l'argent roi, les armes, les médias. Le précédent, GTA V, s'est vendu à 200 millions d'exemplaires.",
         link: { label: "L'Heure du Monde, 18 novembre 2026", url: "https://podcasts.lemonde.fr/lheure-du-monde/202611180300-comment-gta-vi-est-il-devenu-le-produit-culturel-le-plus-att", note: "Épisode « Comment GTA VI est-il devenu le produit culturel le plus attendu de la décennie ? ». Gratuit." }
       },
@@ -648,6 +661,7 @@ const DAYS = {
         question: "Après sa musique et ses séries, quel pays a fait de sa cuisine une arme d'influence dans le monde ?",
         options: ["La Norvège.", "La Corée du Sud.", "La Suisse.", "Le Canada."],
         answer: ["B"],
+        retenir: "Après la K-pop et les séries, la Corée du Sud fait de sa cuisine un outil d'influence.",
         correction: "La cuisine coréenne a suivi la K-pop et les séries jusque dans nos assiettes. C'est le soft power, ou « puissance douce » : séduire pour attirer touristes et acheteurs.",
         link: { label: "L'invité de 8h20, France Inter, 18 novembre 2026", url: "https://www.radiofrance.fr/franceinter/podcasts/l-invite-de-8h20-le-grand-entretien/l-invite-de-8h20-le-grand-entretien-du-mercredi-18-novembre-2026-7072450", note: "Avec François-Régis Gaudry et Émilie Laystary. 21 min. Gratuit." }
       }
@@ -662,6 +676,7 @@ const DAYS = {
         question: "Mercredi soir, Marine Tondelier, candidate des Écologistes, a fait une annonce qui bouscule la gauche. Laquelle ?",
         options: ["Elle se dit prête à soutenir Jean-Luc Mélenchon.", "Elle rejoint la campagne de Raphaël Glucksmann.", "Elle quitte la vie politique.", "Elle devient la candidate du Parti socialiste."],
         answer: ["A"],
+        retenir: "L'écologiste Marine Tondelier se dit prête à soutenir Jean-Luc Mélenchon à la présidentielle.",
         correction: "Créditée de 2 à 4 %, elle se dit prête à une « coalition » autour de Jean-Luc Mélenchon, sous réserve d'un accord. Son parti n'a pas encore tranché. LFI y voit « une bonne nouvelle ». Glucksmann estime qu'elle tourne le dos à l'Europe.",
         link: { label: "France 24, 18 novembre 2026", url: "https://www.france24.com/fr/france/20261118-presidentielle-2027-election-marine-tondelier-ecologistes-prete-travailler-coalition-autour-jean-luc-melenchon-la-france-insoumise-soutien", note: "Gratuit." }
       },
@@ -671,6 +686,7 @@ const DAYS = {
         question: "L'économiste Gabriel Zucman publie un manifeste avec une centaine de chercheurs, dont des prix Nobel. Selon lui, pourquoi les milliardaires menacent-ils nos démocraties ?",
         options: ["Leur fortune leur donne le pouvoir de peser sur les médias, l'IA et les élections.", "Ils ne votent jamais.", "Ils quittent tous la France.", "Ils financent les armées étrangères."],
         answer: ["A"],
+        retenir: "Pour Gabriel Zucman, la fortune des milliardaires leur permet de peser sur les médias, l'IA et les élections.",
         correction: "Pour Gabriel Zucman, l'extrême richesse donne un pouvoir extrême : médias, IA, élections. Les 3 000 ménages les plus riches pèsent 17 % du PIB mondial, contre 3 % en 1987. Pour le prix Nobel Philippe Aghion, taxer les riches ne réglera pas tout.",
         link: { label: "L'invité de 7h50, France Inter, 19 novembre 2026", url: "https://www.radiofrance.fr/franceinter/podcasts/l-invite-de-7h50/l-invite-de-7h50-du-jeudi-19-novembre-2026-6989296", note: "Avec Gabriel Zucman. 11 min. Gratuit." }
       },
@@ -680,6 +696,7 @@ const DAYS = {
         question: "L'ONU et l'Organisation mondiale de la santé jugent les perturbateurs endocriniens une « menace globale et croissante ». Que font ces substances ?",
         options: ["Elles dérèglent le fonctionnement de nos hormones.", "Elles détruisent la couche d'ozone.", "Elles rendent l'eau radioactive.", "Elles empêchent les antibiotiques d'agir."],
         answer: ["A"],
+        retenir: "Les perturbateurs endocriniens dérèglent nos hormones. L'ONU et l'OMS y voient une menace croissante.",
         correction: "On en trouve dans certains plastiques, cosmétiques ou pesticides. Ils sont liés à des troubles de la fertilité, du développement de l'enfant et à certains cancers. Selon l'ONU et l'OMS, leurs dégâts coûtent au moins 1 100 milliards de dollars par an.",
         link: { label: "Le Monde, 19 novembre 2026", url: "https://www.lemonde.fr/planete/article/2026/11/19/perturbateurs-endocriniens-une-menace-globale-et-croissante-selon-les-nations-unies-et-l-organisation-mondiale-de-la-sante_6813243_3244.html", note: "Article réservé aux abonnés." }
       }
@@ -694,6 +711,7 @@ const DAYS = {
         question: "Jeudi, la Cour internationale de justice a rendu une décision historique sur la Birmanie. Laquelle ?",
         options: ["Elle exclut la Birmanie de l'ONU.", "Elle reconnaît un génocide contre les Rohingyas, une minorité musulmane.", "Elle condamne Aung San Suu Kyi à la prison.", "Elle impose un embargo sur le riz birman."],
         answer: ["B"],
+        retenir: "La Cour internationale de justice reconnaît un génocide de l'armée birmane contre les Rohingyas.",
         correction: "Par 9 voix contre 6, la Cour juge que l'armée voulait détruire les Rohingyas en 2016 et 2017. La Birmanie devra indemniser les victimes et organiser leur retour. Plus d'un million vivent dans des camps au Bangladesh.",
         link: { label: "Géopolitique, France Inter, 20 novembre 2026", url: "https://www.radiofrance.fr/franceinter/podcasts/geopolitique/geopolitique-du-vendredi-20-novembre-2026-9824341", note: "3 min. Gratuit." }
       },
@@ -703,6 +721,7 @@ const DAYS = {
         question: "Depuis le 19 novembre à 10h51, les Françaises travaillent « gratuitement » jusqu'à la fin de l'année. Que traduit cette date symbolique ?",
         options: ["Les jours fériés réservés aux femmes.", "Leur départ plus tardif à la retraite.", "L'écart de salaire entre les femmes et les hommes.", "Le temps passé aux tâches ménagères."],
         answer: ["C"],
+        retenir: "Depuis le 19 novembre, les Françaises travaillent « gratuitement » : c'est l'écart de salaire avec les hommes.",
         correction: "La date traduit l'écart de salaire moyen avec les hommes, calculé chaque année avec les chiffres d'Eurostat. En 2016, elle tombait le 7 novembre. L'écart se réduit, mais lentement.",
         link: { label: "Le Nouvel Obs, 19 novembre 2026", url: "https://www.nouvelobs.com/societe/20261119.OBS120265/a-partir-de-10h51-ce-jeudi-les-femmes-travaillent-gratuitement-il-faut-conditionner-l-acces-aux-marches-publics-aux-entreprises-qui-respectent-l-egalite-salariale.html", note: "Entretien avec Rebecca Amsellem. Article réservé aux abonnés." }
       },
@@ -712,6 +731,7 @@ const DAYS = {
         question: "Depuis le début du mouvement lycéen et social, quelles mesures les préfectures et le gouvernement ont-ils prises ?",
         options: ["Des interdictions de manifester autour de certains lycées.", "Des assignations à résidence.", "Des couvre-feux dans certaines villes ou certains quartiers.", "La suspension des élections municipales."],
         answer: ["A", "B", "C"],
+        retenir: "Face au mouvement lycéen, l'État a pris des interdictions de manifester, des assignations à résidence et des couvre-feux.",
         correction: "Le gouvernement les justifie par la sécurité. Les défenseurs des libertés publiques, comme la Ligue des droits de l'homme, y voient une menace pour l'État de droit. Il n'y a pas d'élection suspendue.",
         link: { label: "L'Heure du Monde, 20 novembre 2026", url: "https://podcasts.lemonde.fr/lheure-du-monde/202611200300-droit-de-manifester-notre-etat-de-droit-est-il-menace", note: "« Droit de manifester : notre État de droit est-il menacé ? » Gratuit." }
       }
@@ -726,6 +746,7 @@ const DAYS = {
         question: "Vendredi, à Bruxelles, l'Union européenne et le Royaume-Uni ont conclu leurs premiers accords pour se rapprocher. Que change le principal ?",
         options: ["Le Royaume-Uni réintègre l'Union européenne.", "Les Britanniques adoptent l'euro.", "Le commerce de produits alimentaires, comme le fromage, devient plus simple.", "Les frontières disparaissent pour tous les voyageurs."],
         answer: ["C"],
+        retenir: "L'UE et le Royaume-Uni se rapprochent : les échanges de produits alimentaires deviennent plus simples.",
         correction: "Les contrôles sanitaires sur les aliments vont être allégés. En échange, Londres s'aligne davantage sur les règles européennes. Les frais d'université des étudiants européens restent en discussion.",
         link: { label: "Le Nouvel Obs, 20 novembre 2026", url: "https://www.nouvelobs.com/monde/20261120.OBS120303/du-fromage-au-simili-erasmus-ce-qui-va-changer-apres-le-rabibochage-diplomatique-entre-l-ue-et-le-royaume-uni.html", note: "« Du fromage au simili Erasmus ». Article réservé aux abonnés." }
       },
@@ -735,6 +756,7 @@ const DAYS = {
         question: "Nourrie au smartphone, la génération Z se met à une vieille technologie. Laquelle, selon Le Monde ?",
         options: ["Le Minitel.", "La photo argentique.", "Le fax.", "Le téléphone à cadran."],
         answer: ["B"],
+        retenir: "La génération Z se met à la photo argentique.",
         correction: "Se balader avec le vieil appareil de grand-papa est devenu un signe de distinction. Les jeunes aiment ces photos au « côté sublimé », qui ont « l'air de raconter une histoire, comme au cinéma ».",
         link: { label: "Le Monde, 21 novembre 2026", url: "https://www.lemonde.fr/m-perso/article/2026/11/21/les-photos-ont-un-cote-sublime-l-air-de-raconter-une-histoire-comme-au-cinema-le-declic-argentique-de-la-generation-numerique_6813924_4497916.html", note: "Article réservé aux abonnés." }
       },
@@ -743,6 +765,7 @@ const DAYS = {
         hook: "Sortez les ventilateurs, et pas seulement en été.",
         question: "Selon l'Organisation météorologique mondiale, il faut se préparer à un nouveau record de chaleur sur la planète en 2027.",
         answer: ["Vrai"],
+        retenir: "Avec El Niño, un nouveau record de chaleur mondiale est attendu en 2027.",
         correction: "Vrai. El Niño, un phénomène naturel du Pacifique, s'ajoute au réchauffement dû aux activités humaines. Il ajoute souvent 0,1 à 0,2 °C aux températures mondiales. 2026 pourrait déjà battre le record de 2024.",
         link: { label: "Courrier international, novembre 2026", url: "https://www.courrierinternational.com/article/climat-2026-sera-t-elle-l-annee-la-plus-chaude-historiquement-documentee_285961", note: "« 2026 sera-t-elle l'année la plus chaude historiquement documentée ? » Article réservé aux abonnés." }
       }
@@ -757,6 +780,7 @@ const DAYS = {
         question: "Samedi, François Ruffin a renoncé à se présenter à la présidentielle. Pourquoi ?",
         options: ["Il rejoint la campagne de Jean-Luc Mélenchon.", "Il devient ministre du gouvernement.", "Il a été condamné par la justice.", "Face au risque d'une victoire de l'extrême droite."],
         answer: ["D"],
+        retenir: "François Ruffin renonce à la présidentielle, face au risque d'une victoire de l'extrême droite.",
         correction: "Le député de la Somme, en rupture avec LFI, ne soutient aucun candidat. Il souhaite bon courage à la gauche pour porter un projet capable de gagner face à un RN « aux portes du pouvoir ».",
         link: { label: "Le Monde, 21 novembre 2026", url: "https://www.lemonde.fr/politique/article/2026/11/21/presidentielle-2027-francois-ruffin-renonce-a-sa-candidature-face-au-risque-de-l-arrivee-de-l-extreme-droite-au-pouvoir_6814051_823448.html", note: "Article réservé aux abonnés." }
       },
@@ -766,6 +790,7 @@ const DAYS = {
         question: "De l'Inde au Chili, et jusque dans la Sarthe, les data centers suscitent une colère croissante. Que leur reproche-t-on ?",
         options: ["Ils consomment énormément d'énergie.", "Ils puisent beaucoup d'eau.", "Ils s'installent souvent sans informer les habitants.", "Ils font baisser le prix de l'électricité."],
         answer: ["A", "B", "C"],
+        retenir: "Les data centers suscitent la colère : énergie, eau, et habitants rarement consultés.",
         correction: "Dans la Sarthe, un supercalculateur pour l'IA consommera autant qu'une ville comme Nantes et pompera dans une rivière. Les habitants l'ont appris par la presse. Des recours sont déposés.",
         link: { label: "Le Grand reportage, France Inter, 20 novembre 2026", url: "https://www.radiofrance.fr/franceinter/podcasts/le-grand-reportage-de-france-inter/le-grand-reportage-d-interception-du-vendredi-20-novembre-2026-1515694", note: "4 min. Gratuit." }
       },
@@ -775,6 +800,7 @@ const DAYS = {
         question: "À Genève, des pays voulaient négocier un traité contre les « robots tueurs », ces armes qui choisissent seules leur cible. Que s'est-il passé ?",
         options: ["Le traité a été signé par tous les pays.", "La Russie, les États-Unis et Israël ont bloqué les négociations.", "Les robots tueurs sont désormais interdits en Europe.", "La Chine a renoncé à en fabriquer."],
         answer: ["B"],
+        retenir: "La Russie, les États-Unis et Israël ont bloqué un traité contre les « robots tueurs ».",
         correction: "Ces 3 pays se sont opposés à l'ouverture de négociations. Ces armes, de plus en plus aidées par l'intelligence artificielle, apparaissent déjà sur les champs de bataille. Aucun traité ne les encadre.",
         link: { label: "Le Monde, 21 novembre 2026", url: "https://www.lemonde.fr/international/article/2026/11/21/a-geneve-la-communaute-internationale-echoue-a-interdire-les-robots-tueurs_6814012_3210.html", note: "Article réservé aux abonnés." }
       }
@@ -789,6 +815,7 @@ const DAYS = {
         question: "La COP31, la conférence de l'ONU sur le climat, s'est achevée dimanche en Turquie. Comment ?",
         options: ["Par un accord pour sortir du charbon d'ici 2030.", "Par un échec : aucune décision finale n'a été adoptée.", "Par une taxe mondiale sur les billets d'avion.", "Par le retour des États-Unis dans l'accord de Paris."],
         answer: ["B"],
+        retenir: "La COP31 a échoué : aucun accord, faute de mention des énergies fossiles.",
         correction: "L'Union européenne a refusé un texte qui ne citait même pas les énergies fossiles, principale cause du réchauffement. Elle accuse des États pétroliers d'avoir pris la COP « en otage ».",
         link: { label: "France 24, 22 novembre 2026", url: "https://www.france24.com/fr/vid%C3%A9o/20261122-climat-la-cop31-%C3%A9choue-devant-la-division-des-pays-sur-les-%C3%A9nergies-fossiles", note: "Vidéo. Gratuit." }
       },
@@ -798,6 +825,7 @@ const DAYS = {
         question: "Un mathématicien affirme avoir démontré l'hypothèse de Riemann, l'un des plus grands problèmes des maths, avec l'aide d'une IA. Sur quoi porte ce problème ?",
         options: ["La forme de l'univers.", "Le calcul du nombre pi.", "Les nombres premiers.", "Les prévisions météo."],
         answer: ["C"],
+        retenir: "L'hypothèse de Riemann, sur les nombres premiers, aurait été démontrée avec l'aide de Claude, l'IA d'Anthropic.",
         correction: "Elle suppose que les nombres premiers suivent un ordre caché. Levent Alpöge, salarié d'Anthropic, l'a démontrée avec Claude, l'IA de son employeur. Les premières vérifications lui donnent raison. Un million de dollars est en jeu.",
         link: { label: "Nos vies numériques, France Inter, 23 novembre 2026", url: "https://www.radiofrance.fr/franceinter/podcasts/nos-vies-numeriques/nos-vies-numeriques-du-lundi-23-novembre-2026-9463390", note: "Stéphane Jourdain. 3 min. Gratuit." }
       },
@@ -807,6 +835,7 @@ const DAYS = {
         question: "Emmanuel Macron envisage d'inscrire une « règle d'or » budgétaire dans la Constitution. De quoi s'agit-il ?",
         options: ["Une obligation de revenir peu à peu à l'équilibre des finances publiques.", "Une réserve d'or pour garantir la dette.", "Une interdiction d'augmenter les impôts.", "Un plafond sur le salaire des ministres."],
         answer: ["A"],
+        retenir: "La « règle d'or » budgétaire obligerait à revenir peu à peu à l'équilibre des finances publiques.",
         correction: "L'idée reprend un projet de 2011, jamais adopté. L'État, la Sécurité sociale et les collectivités devraient suivre une trajectoire de retour à l'équilibre. Le RN y est favorable, Gabriel Zucman la critique.",
         link: { label: "Le Nouvel Obs, 23 novembre 2026", url: "https://www.nouvelobs.com/politique/20261122.OBS120348/qu-est-ce-que-la-regle-d-or-budgetaire-que-macron-envisage-d-inscrire-dans-la-constitution.html", note: "Article réservé aux abonnés." }
       }
@@ -821,6 +850,7 @@ const DAYS = {
         question: "Dimanche, des drones ukrainiens ont coulé une corvette russe dans le port de Benghazi, en Libye. Pourquoi frapper si loin ?",
         options: ["La Libye a déclaré la guerre à l'Ukraine.", "La Russie se sert de ce port pour ses opérations en Méditerranée et en Afrique.", "Pour s'emparer du pétrole libyen.", "Les drones visaient la Crimée et ont dévié."],
         answer: ["B"],
+        retenir: "L'Ukraine a coulé une corvette russe en Libye, où Moscou a un port clé pour la Méditerranée et l'Afrique.",
         correction: "Depuis la chute d'Assad en Syrie, Moscou utilise Benghazi, tenu par le maréchal Haftar. De là, elle arme ses troupes au Sahel. Kiev veut montrer que la Russie n'est en sécurité nulle part.",
         link: { label: "Géopolitique, France Inter, 24 novembre 2026", url: "https://www.radiofrance.fr/franceinter/podcasts/geopolitique/geopolitique-du-mardi-24-novembre-2026-3045034", note: "3 min. Gratuit." }
       },
@@ -830,6 +860,7 @@ const DAYS = {
         question: "Poussé à la démission après un scandale d'espionnage, Jensen Huang a retrouvé lundi la tête de Nvidia, le géant des puces pour l'IA. Qu'est-ce qui a pesé pour son retour ?",
         options: ["Donald Trump a appelé le conseil d'administration.", "Une pétition signée par 25 % des salariés.", "La chute de l'action Nvidia en Bourse.", "Un vote des clients chinois de Nvidia."],
         answer: ["A", "B", "C"],
+        retenir: "Jensen Huang est revenu à la tête de Nvidia, poussé par Trump, ses salariés et la Bourse.",
         correction: "Trump l'a jugé indispensable pour garder « 10 ans d'avance sur la Chine ». En son absence, Nvidia avait perdu 1 000 milliards de dollars en Bourse. À son retour, l'action a bondi de 30 %. Pour un analyste, la tech pèse autant qu'un gouvernement.",
         link: { label: "Nos vies numériques, France Inter, 24 novembre 2026", url: "https://www.radiofrance.fr/franceinter/podcasts/nos-vies-numeriques/nos-vies-numeriques-du-mardi-24-novembre-2026-9328904", note: "Stéphane Jourdain. 3 min. Gratuit." }
       },
@@ -839,6 +870,7 @@ const DAYS = {
         question: "Les Français ont retiré près de 10 milliards d'euros de leur Livret A depuis janvier, du jamais vu depuis 2008. Pourquoi ?",
         options: ["Il va être supprimé en 2027.", "Il rapporte moins que la hausse des prix.", "Il est désormais imposé.", "Son plafond a été abaissé."],
         answer: ["B"],
+        retenir: "Le Livret A se vide : il rapporte 1,7 %, moins que l'inflation à 3,4 %.",
         correction: "Il rapporte 1,7 %, l'inflation atteint 3,4 %. Avec l'énergie plus chère, les ménages puisent aussi dans leur épargne pour payer. Beaucoup lui préfèrent l'assurance vie, qui rapporte plus.",
         link: { label: "Le Figaro, 24 novembre 2026", url: "https://www.lefigaro.fr/conjoncture/inflation-pouvoir-d-achat-en-berne-le-livret-a-connait-sa-pire-annee-depuis-2008-20261124", note: "Gratuit." }
       }
@@ -1036,7 +1068,7 @@ function pastView() {
   const el = $(`<section class="past-page">
     <button type="button" class="dig-back">‹ Mon aura</button>
     <h1 class="dig-title">Questions passées</h1>
-    <p class="dig-sub">${items.length} questions</p>
+    <p class="dig-sub">${items.length} chose${items.length > 1 ? "s" : ""} apprise${items.length > 1 ? "s" : ""}</p>
   </section>`);
   el.querySelector(".dig-back").onclick = () => { auraSub = null; openDate = null; render(); };
   TOPICS.forEach((tp) => {
@@ -1054,9 +1086,8 @@ function pastView() {
         <span class="dot ${x.ok === null ? "" : x.ok ? "ok" : "ko"}"></span>
         <div class="sum-body">
           <span class="past-date">${esc(longDate(x.k))}</span>
-          <span class="sum-q">${esc(x.c.question)}</span>
+          <span class="learn-a">${esc(x.c.retenir || x.c.correction)}</span>
           <a href="${esc(x.c.link.url)}" target="_blank" rel="noopener">${esc(x.c.link.label)}</a>
-          <span class="note">${esc(x.c.link.note)}</span>
         </div>
       </li>`));
     });
