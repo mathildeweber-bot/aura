@@ -975,7 +975,8 @@ if (/netlify\.app$/.test(location.hostname)) document.documentElement.classList.
 function track(name, sub) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name + "/" + (sub || dayKey()), title: name, event: true }); } catch (e) {} }
 document.addEventListener("click", (e) => { const a = e.target.closest && e.target.closest(".more a:not(.btn), .sum-body a, .sheet-link"); if (a) track("source-ouverte"); });
 const $ = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstElementChild; };
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// Typographie française (24/11) : espace insécable avant % : ; ? ! » et après «, pour qu'aucun signe ne passe seul à la ligne.
+const esc = (s) => String(s).replace(/ ([%:;?!»])/g, "\u00a0$1").replace(/« /g, "«\u00a0").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function setAura(bump) {
   const p = document.getElementById("auraPill");
