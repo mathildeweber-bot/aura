@@ -192,7 +192,7 @@ input[type=text], textarea { font: inherit; color: var(--ink); background: var(-
 .mine-head > span:first-child { flex: 1; white-space: nowrap; }
 .mine-head .flame { white-space: nowrap; font-size: 13px; padding: 3px 9px; }
 .mine-head { gap: 6px; }
-.flame.joker-pill { background: #dbe8fd; }
+.flame.joker-pill { background: #dbe8fd; color: #111111; }
 .streak-pill { flex: none; font-family: var(--label); font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 0.04em; background: var(--pill); color: var(--on-pill); border-radius: 999px; padding: 5px 11px; font-variant-numeric: tabular-nums; }
 .celebrate { position: fixed; inset: 0; z-index: 50; background: var(--rose); color: var(--on-pastel); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px 16px; text-align: center; cursor: pointer; animation: celIn .25s ease both; }
 .celebrate.out { animation: celOut .25s ease both; }
@@ -366,7 +366,9 @@ body.in-quiz { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 .learn-a { display: block; font-weight: 700; font-size: 16px; line-height: 1.35; }
 .learn-t { display: block; font-size: 15px; line-height: 1.45; }
 .past-date { font-family: var(--label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
-.past-page li.sel { background: #fff6d6; border-radius: 12px; }
+.past-page li.sel { background: #fff6d6; color: #111111; border-radius: 12px; }
+.past-page li.sel .past-date, .past-page li.sel .note { color: #555555; }
+.past-page li.sel a { color: #4a3aa8; }
 .past-btn { margin-top: 2px; }
 .dig-push { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 14px; border-radius: 18px; border: 2px solid #e0457b; background: var(--surface); color: var(--ink); margin: 0; }
 .dig-push-kicker { font-family: var(--label); font-weight: 700; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: #e0457b; }
@@ -419,7 +421,7 @@ body.step-score .cta-bar { background: var(--rose); box-shadow: none; }
 .good-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 5px; text-transform: none; letter-spacing: 0; }
 .good-list li { background: var(--surface); color: var(--ink); border: 2px solid var(--good); border-radius: 10px; padding: 6px 10px; font-size: 15px; font-weight: 700; line-height: 1.3; }
 .good-list li::before { content: "✓ "; color: var(--good); }
-.joker-bar { display: flex; align-items: center; gap: 12px; background: #e8f0fe; border-radius: 16px; padding: 10px 14px; font-size: 14px; line-height: 1.35; }
+.joker-bar { display: flex; align-items: center; gap: 12px; background: #e8f0fe; color: #111111; border-radius: 16px; padding: 10px 14px; font-size: 14px; line-height: 1.35; }
 .jk-dots { display: flex; gap: 6px; flex: none; }
 .jk { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; border: 2px dashed #8ab4f8; color: #8ab4f8; }
 .jk.on { background: #8ab4f8; border: 2px solid #8ab4f8; color: #111111; }
@@ -468,7 +470,7 @@ body.has-cta { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
 .dig-alert { margin: 8px 0 0; background: var(--jaune); color: var(--on-pastel); border-radius: 14px; padding: 10px 12px; font-size: 14px; font-weight: 600; }
 .tab { position: relative; }
 .milestone { margin: 4px 0 0; background: var(--jaune); color: #111111; border-radius: 14px; padding: 10px 14px; font-size: 15px; text-align: center; }
-.milestone.joker { background: #cfe3ff; }
+.milestone.joker { background: #cfe3ff; color: #111111; }
 .joker-line { margin: 0; font-size: 12px; color: var(--muted); }
 .joker-note { margin: 0; background: #cfe3ff; color: #111111; border-radius: 12px; padding: 8px 10px; font-size: 13px; font-weight: 600; }
 .wk-day.old .wk-dot { border-color: var(--line); }
@@ -1012,6 +1014,8 @@ function setProgress() {
 let tab = "play";
 let openDate = null;
 let auraSub = null;
+// D'où l'on vient quand on ouvre « Questions passées » (24/11) : le retour ramène à cette page.
+let pastFrom = null;
 // Thème de chaque carte du jour, pour ranger les questions passées (23/11). Une nouvelle carte peut porter un champ « topic ».
 const TOPICS = ["Politique", "Le monde", "Économie et vie chère", "Société", "Climat, sciences et santé", "Tech, IA et cyber", "Culture"];
 const TOPIC_OF = {
@@ -1068,11 +1072,11 @@ function pastView() {
   Object.entries(profile.days).forEach(([k, d]) => { if (!DAYS[k]) return; DAYS[k].cards.forEach((c, n) => items.push({ k, c, n, ok: d.oks ? d.oks[n] : null, topic: topicOf(k, c, n) })); });
   items.sort((a, b) => (a.k < b.k ? 1 : -1));
   const el = $(`<section class="past-page">
-    <button type="button" class="dig-back">‹ Mon aura</button>
+    <button type="button" class="dig-back">‹ ${pastFrom === "play" ? "Accueil" : "Mon aura"}</button>
     <h1 class="dig-title">Questions passées</h1>
     <p class="dig-sub">${items.length} chose${items.length > 1 ? "s" : ""} apprise${items.length > 1 ? "s" : ""}</p>
   </section>`);
-  el.querySelector(".dig-back").onclick = () => { auraSub = null; openDate = null; render(); };
+  el.querySelector(".dig-back").onclick = () => { auraSub = null; openDate = null; if (pastFrom === "play") tab = "play"; pastFrom = null; render(); };
   TOPICS.forEach((tp) => {
     const list = items.filter((x) => x.topic === tp);
     if (!list.length) return;
@@ -1138,7 +1142,7 @@ function introView() {
     <div class="actions"></div>
   </section>`);
   const acts = el.querySelector(".actions");
-  const review = () => { tab = "aura"; auraSub = "past"; openDate = dayKey(); render(); };
+  const review = () => { tab = "aura"; auraSub = "past"; openDate = dayKey(); pastFrom = "play"; render(); };
   const start = () => { track(done ? "partie-rejouee" : "partie-commencee"); state.name = profile.name || ""; state.step = "q"; state.i = 0; state.picks = []; render(); };
   if (!done) {
     const b = $(`<button class="btn btn-play" type="button"><span class="play-ico" aria-hidden="true">▶</span>C'est parti</button>`); b.onclick = start; setCta(b);
@@ -1167,7 +1171,7 @@ function introView() {
     }
     const row = $(`<div class="quick"></div>`);
     const sh = $(`<button class="quick-btn" type="button"><span class="tile-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 13v6h14v-6"/></svg></span>Partager mon score</button>`); sh.onclick = () => shareScore(profile.days[dayKey()], sh); row.appendChild(sh);
-    { const r = $(`<button class="quick-btn" type="button"><span class="tile-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5Z M12 6v13"/></svg></span>Revoir les sources</button>`); r.onclick = review; row.appendChild(r); }
+    { const r = $(`<button class="quick-btn" type="button"><span class="tile-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5Z M12 6v13"/></svg></span>Ce que j'ai appris</button>`); r.onclick = review; row.appendChild(r); }
     acts.appendChild(row);
   }
   el.querySelector("#mine").replaceWith(mineView(true));
@@ -1747,7 +1751,7 @@ function digEndView() {
 }
 
 document.getElementById("auraPill").onclick = showRules; document.getElementById("auraPill").style.cursor = "pointer";
-document.querySelectorAll(".tab").forEach((b) => { b.onclick = () => { tab = b.dataset.tab; auraSub = null; if (tab === "dig") dig.step = "list"; render(); }; });
+document.querySelectorAll(".tab").forEach((b) => { b.onclick = () => { tab = b.dataset.tab; auraSub = null; pastFrom = null; if (tab === "dig") dig.step = "list"; render(); }; });
 document.getElementById("quit").onclick = () => { closeSheet(); if (tab === "dig") { dig.step = "home"; render(); } else reset(); };
 // Un seul bouton : « Jouer le [jour] » lance directement les questions, sans repasser par l'accueil (23/11).
 let pendingStart = null;
