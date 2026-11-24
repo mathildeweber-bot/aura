@@ -368,9 +368,10 @@ body.in-quiz { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 .past-date { font-family: var(--label); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
 .past-page li.sel { background: #fff6d6; border-radius: 12px; }
 .past-btn { margin-top: 2px; }
-.dig-push { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 14px; border-radius: 18px; border: 2px solid #e0457b; background: var(--surface); color: var(--ink); font: inherit; text-align: left; cursor: pointer; margin: 0; }
+.dig-push { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 14px; border-radius: 18px; border: 2px solid #e0457b; background: var(--surface); color: var(--ink); margin: 0; }
 .dig-push-kicker { font-family: var(--label); font-weight: 700; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: #e0457b; }
-.dig-push-row { display: flex; align-items: center; gap: 10px; }
+.dig-push-row { display: flex; align-items: center; gap: 10px; width: 100%; font: inherit; color: inherit; text-align: left; background: none; border: 0; padding: 6px 0; cursor: pointer; }
+.dig-push-row + .dig-push-row { border-top: 1px solid var(--line, #eee); padding-top: 12px; }
 .dig-push-row > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .dig-push-row small { font-size: 13px; color: var(--muted); }
 .dig-push .tile-ico { width: 40px; height: 40px; flex: none; }
@@ -1145,16 +1146,23 @@ function introView() {
     if (todo) { const c = $(`<button class="btn btn-play" type="button"><span class="play-ico" aria-hidden="true">▶</span>Jouer le ${esc(DAYS[todo].label.toLowerCase())}</button>`); c.onclick = () => { pendingStart = todo; location.hash = todo; }; setCta(c); }
     else {
       // À jour (23/11) : on pousse vers Creuser pour gagner plus d'aura.
-      const pick = CREUSER.find((t) => digNew(t)) || CREUSER.find((t) => !digOks(t).length) || CREUSER.find((t) => !digDone(t));
-      if (pick) {
-        const left = pick.questions.length - digOks(pick).length;
-        const card = $(`<button type="button" class="dig-push">
-          <span class="dig-push-kicker">Envie de plus d'aura ?</span>
-          <span class="dig-push-row"><span class="tile-ico" style="background:var(--${pick.color})">${DIG_ICO}</span><span><b>Creuse « ${esc(pick.name)} »</b><small>${left} question${left > 1 ? "s" : ""}, jusqu'à ${(left * DIG_GAIN + DIG_PERFECT).toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0")} aura${(((profile.dig[pick.id] || {}).jokerAt || 0) < pick.questions.length) ? " et 1 joker de série" : ""}</small></span><span aria-hidden="true">›</span></span>
-        </button>`);
-        card.onclick = () => { tab = "dig"; digOpen(pick); };
-        el.querySelector("#mine").before(card);
-        const c = $(`<button class="btn btn-play" type="button">Creuser un sujet</button>`); c.onclick = () => { tab = "dig"; dig.step = "list"; render(); }; setCta(c);
+      // 2 sujets proposés (24/11) : d'abord ceux liés aux cartes du jour, puis ceux avec du nouveau, en cours, puis les autres en tournant chaque jour.
+      const open = CREUSER.filter((t) => !digDone(t));
+      const today = new Set(day.cards.map((c, k) => (digOfCard(c, k) || {}).id).filter(Boolean));
+      const rank = (t) => (today.has(t.id) ? 0 : digNew(t) ? 1 : digOks(t).length ? 2 : 3);
+      const turn = Number(dayKey().slice(-2));
+      const picks = open.map((t, n) => ({ t, r: rank(t), o: (n + turn) % open.length })).sort((x, y) => x.r - y.r || x.o - y.o).slice(0, 2).map((x) => x.t);
+      if (picks.length) {
+        const box = $(`<div class="dig-push"><span class="dig-push-kicker">Envie de plus d'aura ?</span></div>`);
+        picks.forEach((pick) => {
+          const left = pick.questions.length - digOks(pick).length;
+          const jk = !jokersFull() && ((profile.dig[pick.id] || {}).jokerAt || 0) < pick.questions.length;
+          const row = $(`<button type="button" class="dig-push-row"><span class="tile-ico" style="background:var(--${pick.color})">${DIG_ICO}</span><span><b>${esc(pick.name)}</b><small>${left} question${left > 1 ? "s" : ""}, jusqu'à ${(left * DIG_GAIN + DIG_PERFECT).toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0")} aura${jk ? " et 1 joker" : ""}</small></span><span aria-hidden="true">›</span></button>`);
+          row.onclick = () => { tab = "dig"; digOpen(pick); };
+          box.appendChild(row);
+        });
+        el.querySelector("#mine").before(box);
+        const c = $(`<button class="btn btn-play" type="button">Voir tous les sujets</button>`); c.onclick = () => { tab = "dig"; dig.step = "list"; render(); }; setCta(c);
       } else { const r = $(`<button class="btn" type="button">Revoir mes questions</button>`); r.onclick = review; setCta(r); }
     }
     const row = $(`<div class="quick"></div>`);
