@@ -253,7 +253,7 @@ body { font-size: 15px; padding-block: 12px calc(150px + env(safe-area-inset-bot
 .btn.btn-play { background: #e0457b; color: #ffffff; font-weight: 700; box-shadow: 0 6px 18px rgba(224, 69, 123, .35); }
 .btn.btn-play:active { transform: scale(.98); }
 .play-ico { font-size: 13px; margin-right: 8px; vertical-align: 1px; }
-.tabs { left: 50%; right: auto; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); width: min(calc(100vw - 32px), 340px);
+.tabs { left: 50%; right: auto; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); width: min(calc(100vw - 32px), 400px);
   padding: 5px; gap: 4px; border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 8px 28px rgba(0,0,0,.12); background: var(--surface); }
 .tab { flex: 1; font-family: var(--body); font-weight: 600; font-size: 12px; letter-spacing: 0; text-transform: none; padding: 6px 8px; color: var(--muted); }
 .tab::before { font-size: 17px; margin-bottom: 1px; }
@@ -440,6 +440,27 @@ body.step-eclat, body.step-eclat .cta-bar { background: #fdeef4; box-shadow: non
 body.step-gift, body.step-gift .cta-bar { background: #e8f0fd; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .score-lines li { animation: none; opacity: 1; transform: none; } .eclat-star, .eclat-row .st.on, .gift-box { animation: none; } }
 .star-ico path { fill: #d0679a; stroke: none; }
+.fr-page { display: flex; flex-direction: column; gap: 12px; }
+.fr-page .dig-title { margin-bottom: 2px; }
+.fr-lead { margin: 0; font-size: 15px; color: var(--muted); }
+.fr-input { font: inherit; font-size: 17px; padding: 13px 14px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); width: 100%; box-sizing: border-box; }
+.fr-err { margin: 0; color: var(--bad); font-size: 14px; }
+.fr-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.fr-chip { font: inherit; font-size: 14px; font-weight: 600; border-radius: 999px; padding: 7px 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.fr-chip.on { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.fr-board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fr-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+.fr-row.me { background: #fdeef4; border-color: #f2c3d6; color: #111111; }
+.fr-rank { width: 26px; font-family: var(--display); font-size: 20px; text-align: center; }
+.fr-name { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-name small { font-weight: 500; color: var(--muted); margin-left: 4px; }
+.fr-row.me .fr-name small { color: #6b6a70; }
+.fr-streak { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-weight: 700; color: #d0679a; white-space: nowrap; }
+.fr-streak svg { width: 13px; height: 13px; }
+.fr-aura { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fr-note { margin: 0; font-size: 13px; color: var(--muted); text-align: center; }
+.fr-link { font: inherit; font-size: 14px; font-weight: 600; background: none; border: 0; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px; align-self: center; }
+.fr-toast { margin: 0; background: var(--menthe, #dff3e4); color: #111111; border-radius: 14px; padding: 10px 14px; font-size: 15px; }
 .big-ico { width: 112px; height: 112px; border-radius: 50%; background: var(--rose); color: var(--on-pastel); display: flex; align-items: center; justify-content: center; font-size: 56px; }
 .streak-page .mine { border: 0; box-shadow: none; background: var(--tile); }
 .recap-page { gap: 16px; }
@@ -558,6 +579,7 @@ body.has-cta { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
   <nav class="tabs" aria-label="Sections">
     <button type="button" class="tab" id="tabPlay" data-tab="play">Jouer</button>
     <button type="button" class="tab" id="tabDig" data-tab="dig"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>Creuser</button>
+    <button type="button" class="tab" id="tabFriends" data-tab="friends"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5c0 2.5 1.3 4 3.2 4.3M16 6h3c0 2.5-1.3 4-3.2 4.3M12 13v4M8.5 20h7M10 17h4v3h-4z"/></svg>Classement</button>
     <button type="button" class="tab" id="tabAura" data-tab="aura">Mon aura</button>
   </nav>
 
@@ -1104,6 +1126,7 @@ const RULES = [
   ["R", "Rattraper un jour", "300 aura par bonne réponse, pas de série. Jouer le jour même rapporte plus."],
   ["J", "Le joker", "Il protège ta série si tu rates un jour. Tu en gagnes un tous les 7 jours de série, ou en terminant un sujet de Creuser. 2 au maximum : au-delà, pas de joker en plus."],
   ["C", "Creuser", "300 aura par bonne réponse. 3 000 de bonus si tout est bon."],
+  ["1", "Le classement", "Entre amis, du lundi au dimanche, remis à zéro chaque lundi. Seuls les jours joués le jour même comptent."],
 ];
 function profileView() {
   const fmt = (n) => n.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0");
@@ -1111,7 +1134,7 @@ function profileView() {
   const el = $(`<section class="past-page">
     <button type="button" class="dig-back">‹ Mon aura</button>
     <h1 class="dig-title">Profil</h1>
-    <label class="field" for="pname">Ton prénom<input type="text" id="pname" autocomplete="given-name" placeholder="Par exemple : Inès"></label>
+    <label class="field" for="pname">Ton pseudo<input type="text" id="pname" maxlength="20" autocomplete="nickname" placeholder="Par exemple : Inès"></label>
     <div class="card stats">
       <div><b>${fmt(totalAura())}</b><span>aura</span></div>
       <div><b>${daysTxt(currentStreak())}</b><span>série</span></div>
@@ -1127,6 +1150,7 @@ function profileView() {
   RULES.forEach(([ico, t, d]) => box.appendChild($(`<div class="rule"><span class="rule-ico">${esc(ico)}</span><div><b>${esc(t)}</b><span>${esc(d)}</span></div></div>`)));
   const ni = el.querySelector("#pname"); ni.value = profile.name || "";
   ni.addEventListener("input", () => { profile.name = ni.value.trim(); state.name = profile.name; saveProfile(); });
+  ni.addEventListener("change", () => { if (profile.sbReady && profile.name.length >= 2) sbUpdatePlayer({ pseudo: profile.name }); });
   el.querySelector(".dig-back").onclick = () => { auraSub = null; render(); };
   if (openRules) { openRules = false; setTimeout(() => { const r = document.getElementById("rules"); if (r) r.scrollIntoView({ block: "start" }); }, 50); }
   return el;
@@ -1186,6 +1210,7 @@ function render(scroll = true) {
   screen.innerHTML = "";
   clearCta(); closeSheet();
   if (tab === "dig") screen.appendChild({ list: digListView, home: digHomeView, sources: digSourcesView, q: digQuestionView, end: digEndView }[dig.step]());
+  else if (tab === "friends") screen.appendChild(friendsView());
   else if (tab === "aura") screen.appendChild(auraSub === "past" ? pastView() : auraSub === "profile" ? profileView() : auraView());
   else if (state.step === "intro") screen.appendChild(introView());
   else if (state.step === "q") screen.appendChild(questionView());
@@ -1532,6 +1557,7 @@ function finishDay() {
   }
   saveProfile();
   track(dayKey() === iso(new Date()) ? "partie-terminee" : "jour-rattrape");
+  sbSync();
 }
 
 // Pont entre le jour et Creuser (23/11) : carte du jour → sujet de Creuser lié.
@@ -1656,6 +1682,142 @@ function giftView() {
   const b = $(`<button class="btn" type="button">Récupérer mon joker</button>`);
   b.onclick = () => { state.step = "intro"; render(); };
   setCta(b);
+  return el;
+}
+
+// ---- Classement entre amis (Supabase, 25/11) ----
+// Compte invisible (connexion anonyme), un pseudo, des groupes rejoints par lien. Règles côté serveur : voir jeu/supabase/01-tables.sql.
+// Classement de la semaine (lundi au dimanche) : seuls les jours joués le jour même comptent, le serveur en décide.
+const SB_URL = "https://caeriuyyhjaealgznfym.supabase.co", SB_KEY = "sb_publishable_ymDG4vdzxYuQy3hRHpUcRQ_dFxdSftd", SB_STORE = "aura-sb-session";
+let sbSession = null;
+try { sbSession = JSON.parse(localStorage.getItem(SB_STORE) || "null"); } catch (e) {}
+const sbSave = (x) => { sbSession = x; try { localStorage.setItem(SB_STORE, JSON.stringify(x)); } catch (e) {} };
+async function sbAuth(path, body) {
+  const r = await fetch(SB_URL + "/auth/v1/" + path, { method: "POST", headers: { apikey: SB_KEY, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.access_token) { const e = new Error("auth"); e.status = r.status; throw e; }
+  sbSave({ access: d.access_token, refresh: d.refresh_token, exp: Date.now() + ((d.expires_in || 3600) - 120) * 1000, uid: d.user.id });
+}
+async function sbToken() {
+  if (!sbSession) await sbAuth("signup", { data: {} });
+  else if (Date.now() > sbSession.exp) {
+    try { await sbAuth("token?grant_type=refresh_token", { refresh_token: sbSession.refresh }); }
+    catch (e) { if (e.status >= 400 && e.status < 500) { sbSave(null); profile.sbReady = 0; profile.sbSent = {}; saveProfile(); } throw e; }
+  }
+  return sbSession.access;
+}
+async function sb(path, opts = {}) {
+  const t = await sbToken();
+  const h = { apikey: SB_KEY, Authorization: "Bearer " + t, "Content-Type": "application/json" };
+  if (opts.prefer) h.Prefer = opts.prefer;
+  const r = await fetch(SB_URL + "/rest/v1/" + path, { method: opts.method || "GET", headers: h, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  const txt = await r.text(); let d = null; try { d = txt ? JSON.parse(txt) : null; } catch (e) {}
+  if (!r.ok) { const e = new Error((d && d.message) || "Erreur"); e.code = d && d.code; throw e; }
+  return d;
+}
+const sbMsg = (e) => (e && e.code === "P0001" ? e.message : navigator.onLine === false ? "Pas de connexion. Réessaie dans un instant." : "Ça n'a pas marché. Réessaie dans un instant.");
+async function sbRegister(pseudo) {
+  await sbToken();
+  await sb("players?on_conflict=id", { method: "POST", body: { id: sbSession.uid, pseudo, streak: currentStreak() }, prefer: "resolution=merge-duplicates" });
+  profile.name = pseudo; profile.sbReady = 1; saveProfile(); track("pseudo-choisi", "classement");
+  await sbSync();
+}
+async function sbUpdatePlayer(fields) { try { await sb("players?id=eq." + sbSession.uid, { method: "PATCH", body: fields }); } catch (e) {} }
+// Envoie le score du jour (une seule fois) et la série. Sans réseau, on réessaie à la prochaine ouverture.
+async function sbSync() {
+  if (!profile.sbReady || !sbSession) return;
+  const k = iso(new Date()), d = profile.days[k];
+  profile.sbSent = profile.sbSent || {};
+  try {
+    if (d && !profile.sbSent[k]) {
+      await sb("day_scores", { method: "POST", body: { player_id: sbSession.uid, day: k, good: Math.min(3, d.good), aura: Math.min(3000, d.aura) }, prefer: "resolution=ignore-duplicates" });
+      profile.sbSent[k] = 1; saveProfile();
+    }
+    await sbUpdatePlayer({ streak: currentStreak() });
+  } catch (e) {}
+}
+const inviteUrl = (code) => location.origin + location.pathname + "?g=" + code;
+async function shareInvite(g, btn) {
+  const url = inviteUrl(g.code), text = `Rejoins « ${g.name} » sur Aura : 3 questions par jour sur l'actu, et un classement entre nous.`;
+  track("invitation-partagee", "classement");
+  if (navigator.share) { try { await navigator.share({ title: "Aura", text, url }); return; } catch (e) { if (e.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(text + " " + url); btn.textContent = "Lien copié"; setTimeout(() => { btn.textContent = "Inviter des amis"; }, 2200); }
+  catch (e) { prompt("Copie ce lien et envoie-le :", url); }
+}
+let frToast = "";
+function friendsView() {
+  const el = $(`<section class="fr-page"><h1 class="dig-title">Classement</h1></section>`);
+  const err = (box, msg) => { let p = box.querySelector(".fr-err"); if (!p) { p = $(`<p class="fr-err" role="alert"></p>`); box.appendChild(p); } p.textContent = msg; };
+  // 1. Pas encore de pseudo
+  if (!profile.sbReady) {
+    const box = $(`<div class="fr-page">
+      <p class="fr-lead">${profile.pendingJoin ? "Choisis un pseudo pour rejoindre le groupe de tes amis." : "Joue contre tes amis. Choisis un pseudo : il s'affichera dans le classement de tes groupes."}</p>
+      <input class="fr-input" id="frPseudo" maxlength="20" autocomplete="nickname" placeholder="Ton pseudo" aria-label="Ton pseudo">
+      <button class="btn btn-play" type="button" id="frGo">Valider</button>
+    </div>`);
+    const inp = box.querySelector("#frPseudo"); inp.value = profile.name || "";
+    box.querySelector("#frGo").onclick = async (ev) => {
+      const v = inp.value.trim();
+      if (v.length < 2) return err(box, "Ton pseudo doit faire au moins 2 caractères.");
+      ev.target.disabled = true; ev.target.textContent = "Un instant…";
+      try { await sbRegister(v); render(); } catch (e) { ev.target.disabled = false; ev.target.textContent = "Valider"; err(box, sbMsg(e)); }
+    };
+    el.appendChild(box);
+    return el;
+  }
+  const body = $(`<div class="fr-page"><p class="fr-note">Chargement…</p></div>`);
+  el.appendChild(body);
+  (async () => {
+    try {
+      // Lien d'invitation en attente : on rejoint le groupe d'abord.
+      if (profile.pendingJoin) {
+        const code = profile.pendingJoin; profile.pendingJoin = null; saveProfile();
+        try { const name = await sb("rpc/join_group", { method: "POST", body: { group_code: code } }); profile.curGroup = code; saveProfile(); frToast = `Bienvenue dans « ${name} » !`; track("groupe-rejoint", "classement"); }
+        catch (e) { frToast = ""; body.prepend($(`<p class="fr-err" role="alert">${esc(sbMsg(e))}</p>`)); }
+      }
+      const groups = await sb("groups?select=name,code&order=created_at");
+      body.querySelector(".fr-note").remove();
+      if (frToast) { body.appendChild($(`<p class="fr-toast">${esc(frToast)}</p>`)); frToast = ""; }
+      // 2. Pas encore de groupe
+      if (!groups.length) {
+        const box = $(`<div class="card">
+          <b>Crée ton groupe</b>
+          <p class="small">Donne-lui un nom, puis envoie le lien d'invitation à tes amis.</p>
+          <input class="fr-input" id="frName" maxlength="40" placeholder="Par exemple : la Zizanie" aria-label="Nom du groupe">
+          <button class="btn btn-play" type="button" id="frCreate">Créer le groupe</button>
+        </div>`);
+        box.querySelector("#frCreate").onclick = async (ev) => {
+          const v = box.querySelector("#frName").value.trim();
+          if (v.length < 2) return err(box, "Le nom doit faire au moins 2 caractères.");
+          ev.target.disabled = true;
+          try { profile.curGroup = await sb("rpc/create_group", { method: "POST", body: { group_name: v } }); saveProfile(); track("groupe-cree", "classement"); frToast = "Groupe créé. Invite tes amis avec le lien."; render(); }
+          catch (e) { ev.target.disabled = false; err(box, sbMsg(e)); }
+        };
+        body.appendChild(box);
+        body.appendChild($(`<p class="fr-note">Tu as reçu un lien d'invitation ? Ouvre-le : tu rejoindras le groupe.</p>`));
+        return;
+      }
+      // 3. Le classement
+      const g = groups.find((x) => x.code === profile.curGroup) || groups[0];
+      if (groups.length > 1) {
+        const chips = $(`<div class="fr-chips"></div>`);
+        groups.forEach((x) => { const c = $(`<button type="button" class="fr-chip${x.code === g.code ? " on" : ""}">${esc(x.name)}</button>`); c.onclick = () => { profile.curGroup = x.code; saveProfile(); render(false); }; chips.appendChild(c); });
+        body.appendChild(chips);
+      } else body.appendChild($(`<p class="fr-lead"><b>${esc(g.name)}</b> · cette semaine</p>`));
+      const rows = await sb("rpc/leaderboard", { method: "POST", body: { group_code: g.code } });
+      const ol = $(`<ol class="fr-board"></ol>`);
+      rows.forEach((r, k) => {
+        ol.appendChild($(`<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}</span>${r.streak > 0 ? `<span class="fr-streak" title="Série">${STAR}${r.streak}</span>` : ""}<span class="fr-aura">${fmtN(r.week_aura)}</span></li>`));
+      });
+      body.appendChild(ol);
+      if (rows.length < 2) body.appendChild($(`<p class="fr-note">Personne d'autre pour l'instant. Invite tes amis !</p>`));
+      body.appendChild($(`<p class="fr-note">Remis à zéro chaque lundi. Seuls les jours joués le jour même comptent. ✦ = série.</p>`));
+      const inv = $(`<button class="btn btn-play" type="button">Inviter des amis</button>`); inv.onclick = () => shareInvite(g, inv); if (tab === "friends") setCta(inv);
+      const more = $(`<button type="button" class="fr-link">Créer un autre groupe</button>`);
+      more.onclick = () => { const v = (prompt("Nom du nouveau groupe :") || "").trim(); if (v.length < 2) return; sb("rpc/create_group", { method: "POST", body: { group_name: v } }).then((code) => { profile.curGroup = code; saveProfile(); render(false); }).catch((e) => alert(sbMsg(e))); };
+      body.appendChild(more);
+    } catch (e) { body.innerHTML = ""; body.appendChild($(`<p class="fr-err" role="alert">${esc(sbMsg(e))}</p>`)); const again = $(`<button type="button" class="fr-link">Réessayer</button>`); again.onclick = () => render(false); body.appendChild(again); }
+  })();
   return el;
 }
 
@@ -1876,6 +2038,10 @@ window.addEventListener("hashchange", () => {
 })();
 applyJokers();
 reset();
+// Lien d'invitation (?g=code) : on le garde, on nettoie l'adresse, et on ouvre le Classement.
+{ const g = new URLSearchParams(location.search).get("g");
+  if (g && /^[a-z0-9]{4,16}$/i.test(g)) { profile.pendingJoin = g.toLowerCase(); saveProfile(); history.replaceState(null, "", location.pathname + location.hash); tab = "friends"; render(); } }
+sbSync();
 // Premier lancement (23/11) : « Comment ça marche », une seule fois, après l'écran d'ouverture.
 if (!profile.seenIntro) setTimeout(() => {
   const ov = $(`<div class="howto" role="dialog" aria-label="Comment ça marche">
