@@ -458,6 +458,7 @@ body.step-gift, body.step-gift .cta-bar { background: #e8f0fd; box-shadow: none;
 .fr-streak { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-weight: 700; color: #d0679a; white-space: nowrap; }
 .fr-streak svg { width: 13px; height: 13px; }
 .fr-aura { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fr-head { margin: 0; display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); padding: 0 4px; }
 .fr-note { margin: 0; font-size: 13px; color: var(--muted); text-align: center; }
 .fr-link { font: inherit; font-size: 14px; font-weight: 600; background: none; border: 0; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px; align-self: center; }
 .fr-toast { margin: 0; background: var(--menthe, #dff3e4); color: #111111; border-radius: 14px; padding: 10px 14px; font-size: 15px; }
@@ -1803,7 +1804,8 @@ function friendsView() {
         const chips = $(`<div class="fr-chips"></div>`);
         groups.forEach((x) => { const c = $(`<button type="button" class="fr-chip${x.code === g.code ? " on" : ""}">${esc(x.name)}</button>`); c.onclick = () => { profile.curGroup = x.code; saveProfile(); render(false); }; chips.appendChild(c); });
         body.appendChild(chips);
-      } else body.appendChild($(`<p class="fr-lead"><b>${esc(g.name)}</b> · cette semaine</p>`));
+      } else body.appendChild($(`<p class="fr-lead"><b>${esc(g.name)}</b></p>`));
+      body.appendChild($(`<p class="fr-head"><span>Aura gagnée cette semaine</span><span>avec les questions du jour</span></p>`));
       const rows = await sb("rpc/leaderboard", { method: "POST", body: { group_code: g.code } });
       const ol = $(`<ol class="fr-board"></ol>`);
       rows.forEach((r, k) => {
@@ -1811,7 +1813,7 @@ function friendsView() {
       });
       body.appendChild(ol);
       if (rows.length < 2) body.appendChild($(`<p class="fr-note">Personne d'autre pour l'instant. Invite tes amis !</p>`));
-      body.appendChild($(`<p class="fr-note">Remis à zéro chaque lundi. Seuls les jours joués le jour même comptent. ✦ = série.</p>`));
+      body.appendChild($(`<p class="fr-note">Le classement compte les questions du jour, jouées le jour même. Il est remis à zéro chaque lundi. Ton aura totale, en haut, compte aussi les jours passés et Creuser. ✦ = série.</p>`));
       const inv = $(`<button class="btn btn-play" type="button">Inviter des amis</button>`); inv.onclick = () => shareInvite(g, inv); if (tab === "friends") setCta(inv);
       const more = $(`<button type="button" class="fr-link">Créer un autre groupe</button>`);
       more.onclick = () => { const v = (prompt("Nom du nouveau groupe :") || "").trim(); if (v.length < 2) return; sb("rpc/create_group", { method: "POST", body: { group_name: v } }).then((code) => { profile.curGroup = code; saveProfile(); render(false); }).catch((e) => alert(sbMsg(e))); };
