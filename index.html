@@ -1787,7 +1787,7 @@ function digEndView() {
   return el;
 }
 
-document.getElementById("auraPill").onclick = showRules; document.getElementById("auraPill").style.cursor = "pointer";
+document.getElementById("auraPill").onclick = () => { closeSheet(); tab = "aura"; auraSub = null; pastFrom = null; render(); window.scrollTo(0, 0); }; document.getElementById("auraPill").style.cursor = "pointer";
 document.querySelectorAll(".tab").forEach((b) => { b.onclick = () => { tab = b.dataset.tab; auraSub = null; pastFrom = null; if (tab === "dig") dig.step = "list"; render(); }; });
 document.getElementById("quit").onclick = () => { closeSheet(); if (tab === "dig") { dig.step = "home"; render(); } else reset(); };
 // Un seul bouton : « Jouer le [jour] » lance directement les questions, sans repasser par l'accueil (23/11).
