@@ -69,7 +69,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .brand small { display: block; font-family: var(--label); font-weight: 600; font-size: 13px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 4px; }
 .aura-pill { font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; background: var(--pill); color: var(--on-pill); border-radius: 999px; padding: 7px 13px; white-space: nowrap; }
 .aura-pill::before { content: "✦"; margin-right: 6px; }
-.aura-pill.bump { animation: bump .5s ease; }
+.aura-pill.bump, .mega.bump { animation: bump .5s ease; }
 @keyframes bump { 40% { transform: scale(1.12); } }
 .progress { display: flex; gap: 6px; }
 .progress span { flex: 1; height: 5px; border-radius: 3px; background: var(--line); }
@@ -411,6 +411,33 @@ body.step-score .cta-bar { background: var(--rose); box-shadow: none; }
 @keyframes splashIn { from { transform: scale(.3) rotate(-60deg); opacity: 0; } }
 @keyframes splashUp { from { transform: translateY(12px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .splash-star, .splash-name { animation: none; } .splash { transition: none; } }
+.score-lines { list-style: none; margin: 4px 0 0; padding: 0; width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 8px; }
+.score-lines li { display: flex; justify-content: space-between; gap: 10px; background: #ffffff; color: #111111; border-radius: 14px; padding: 11px 14px; font-size: 15px; opacity: 0; transform: translateY(8px); animation: lineIn .35s ease forwards; }
+.score-lines li b { white-space: nowrap; }
+@keyframes lineIn { to { opacity: 1; transform: none; } }
+.eclat-page, .gift-page { position: fixed; inset: 0; z-index: 2; color: #111111; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: calc(24px + env(safe-area-inset-top, 0px)) 24px 140px; overflow-y: auto; }
+.eclat-page { background: #fdeef4; }
+.gift-page { background: #e8f0fd; }
+.eclat-page .mega, .gift-page .mega, .eclat-page .page-title, .gift-page .page-title { color: #111111; }
+.eclat-star { width: 96px; height: 96px; animation: starPop .6s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes starPop { from { transform: scale(.3) rotate(-45deg); opacity: 0; } }
+.eclat-row { width: 100%; max-width: 340px; background: #ffffff; border-radius: 18px; padding: 14px 12px; margin-top: 8px; display: grid; grid-template-columns: repeat(7, 1fr); justify-items: center; align-items: center; }
+.eclat-row .st { width: 26px; height: 26px; color: #e6e1e4; }
+.eclat-row .st.on { color: #d0679a; animation: starPop .4s cubic-bezier(.2,1.4,.4,1) both; }
+.eclat-row .jk-slot { width: 30px; height: 30px; border-radius: 9px; background: #dbe8fd; color: #1e3f7a; display: flex; align-items: center; justify-content: center; }
+.eclat-row .jk-slot svg { width: 18px; height: 18px; }
+.eclat-note { margin: 4px 0 0; font-size: 15px; max-width: 320px; }
+.gift-box { width: 112px; height: 112px; border-radius: 32px; background: #ffffff; color: #1e3f7a; display: flex; align-items: center; justify-content: center; transform: rotate(-6deg); animation: giftIn .7s cubic-bezier(.2,1.4,.4,1) both; }
+.gift-box svg { width: 56px; height: 56px; }
+@keyframes giftIn { from { transform: scale(.2) rotate(-40deg); opacity: 0; } }
+.gift-kicker { margin: 12px 0 0; font-family: var(--label); font-weight: 700; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; color: #1e3f7a; }
+.gift-dots { display: flex; gap: 8px; justify-content: center; }
+.gift-dots i { width: 16px; height: 16px; border-radius: 50%; background: #1e3f7a; }
+.gift-dots i.off { background: #c9d6ee; }
+body.step-eclat, body.step-eclat .cta-bar { background: #fdeef4; box-shadow: none; }
+body.step-gift, body.step-gift .cta-bar { background: #e8f0fd; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .score-lines li { animation: none; opacity: 1; transform: none; } .eclat-star, .eclat-row .st.on, .gift-box { animation: none; } }
+.star-ico path { fill: #d0679a; stroke: none; }
 .big-ico { width: 112px; height: 112px; border-radius: 50%; background: var(--rose); color: var(--on-pastel); display: flex; align-items: center; justify-content: center; font-size: 56px; }
 .streak-page .mine { border: 0; box-shadow: none; background: var(--tile); }
 .recap-page { gap: 16px; }
@@ -1071,7 +1098,7 @@ const RULES = [
   ["✦", "3 questions par jour", "1 000 aura par bonne réponse."],
   ["S", "La série", "Joue le jour même pour l'allonger. Bonus à 3, 7, 30 et 100 jours."],
   ["R", "Rattraper un jour", "Il rapporte de l'aura, pas de série."],
-  ["J", "Le joker", "Il protège ta série si tu rates un jour. Tu en gagnes un en terminant un sujet de Creuser. 2 au maximum : au-delà, pas de joker en plus."],
+  ["J", "Le joker", "Il protège ta série si tu rates un jour. Tu en gagnes un avec 7 jours de série d'affilée, ou en terminant un sujet de Creuser. 2 au maximum : au-delà, pas de joker en plus."],
   ["C", "Creuser", "300 aura par bonne réponse. 3 000 de bonus si tout est bon."],
 ];
 function profileView() {
@@ -1143,6 +1170,8 @@ function render(scroll = true) {
   const inQuiz = playQuiz || digQuiz;
   document.body.classList.toggle("in-quiz", inQuiz);
   document.body.classList.toggle("step-score", playQuiz && state.step === "score");
+  document.body.classList.toggle("step-eclat", playQuiz && state.step === "streak");
+  document.body.classList.toggle("step-gift", playQuiz && state.step === "gift");
   document.querySelector("header.top").hidden = inQuiz;
   document.getElementById("quizbar").hidden = !((playQuiz && state.step === "q") || (digQuiz && dig.step === "q"));
   document.getElementById("quizDay").hidden = document.getElementById("quizbar").hidden;
@@ -1158,6 +1187,7 @@ function render(scroll = true) {
   else if (state.step === "q") screen.appendChild(questionView());
   else if (state.step === "recap") screen.appendChild(recapView());
   else if (state.step === "score") screen.appendChild(scoreView());
+  else if (state.step === "gift") screen.appendChild(giftView());
   else screen.appendChild(streakView());
   if (scroll) window.scrollTo(0, 0);
 }
@@ -1262,7 +1292,7 @@ async function shareScore(rec, btn) {
 function mineView(intro) {
   const box = $(`<div class="mine"></div>`);
   const n0 = currentStreak();
-  if (intro) box.appendChild($(`<div class="mine-head"><span>Ta semaine</span>${n0 > 0 ? `<span class="flame"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.6 2.2-4.8.3 1.6 1.1 2.6 2.3 2.8-.6-2.6-.2-5.4.5-8Z"/></svg>Série : ${n0} jour${n0 > 1 ? "s" : ""}</span>` : ""}${(profile.jokers || 0) + (profile.jokerBank || 0) ? `<span class="flame joker-pill" data-rules="1"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg>${jokerTxt(profile.jokers || 0)}</span>` : ""}</div>`));
+  if (intro) box.appendChild($(`<div class="mine-head"><span>Ta semaine</span>${n0 > 0 ? `<span class="flame"><svg class="ico star-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1c.9 5.6 4.4 9.1 11 11-6.6 1.9-10.1 5.4-11 11-.9-5.6-4.4-9.1-11-11 6.6-1.9 10.1-5.4 11-11Z"/></svg>Série : ${n0} jour${n0 > 1 ? "s" : ""}</span>` : ""}${(profile.jokers || 0) + (profile.jokerBank || 0) ? `<span class="flame joker-pill" data-rules="1"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg>${jokerTxt(profile.jokers || 0)}</span>` : ""}</div>`));
   if (intro && (profile.jokers || 0)) { const t = tipOnce("joker", "Tu as un joker. Il protège ta série si tu rates un jour."); if (t) box.appendChild($(t)); }
   if (intro && profile.jokerNotice && profile.jokerNotice.on === iso(new Date())) box.appendChild($(`<p class="joker-note">Ton joker a protégé ta série${profile.jokerNotice.n > 1 ? " pendant " + profile.jokerNotice.n + " jours" : " hier"}. Ouf.</p>`));
   if (!Object.keys(profile.days).length && !intro) { box.hidden = true; return box; }
@@ -1483,6 +1513,9 @@ function finishDay() {
   if (dayKey() === iso(new Date())) {
     const n = currentStreak(); profile.milestones = profile.milestones || [];
     MILESTONES.forEach(([m, bonus]) => { if (n >= m && !profile.milestones.includes(m)) { profile.milestones.push(m); profile.mBonus = (profile.mBonus || 0) + bonus; state.milestone = { m, bonus }; } });
+    // Joker de série (25/11) : 7 jours d'affilée = 1 joker, dans la limite de 2.
+    state.gift = null;
+    if (n > 0 && n % 7 === 0) state.gift = grantJoker("serie-" + dayKey()) ? "now" : "full";
   }
   saveProfile();
   track(dayKey() === iso(new Date()) ? "partie-terminee" : "jour-rattrape");
@@ -1520,32 +1553,47 @@ function recapView() {
 }
 
 // Score : écran rose plein, juste après la 3e question.
+// 25/11 (inspiré du quiz Alan) : l'aura défile de 0 au total, puis le détail apparaît ligne par ligne. La série a ensuite son propre écran.
+const fmtN = (n) => n.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0");
+const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 1c.9 5.6 4.4 9.1 11 11-6.6 1.9-10.1 5.4-11 11-.9-5.6-4.4-9.1-11-11 6.6-1.9 10.1-5.4 11-11Z"/></svg>';
+const SHIELD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg>';
+function countUp(node, to, ms) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || to <= 0) { node.textContent = "+" + fmtN(to); return; }
+  const t0 = performance.now();
+  const step = (t) => { const k = Math.min(1, (t - t0) / ms); node.textContent = "+" + fmtN(Math.round(to * (1 - Math.pow(1 - k, 3)) / 100) * 100); if (k < 1) requestAnimationFrame(step); else { node.textContent = "+" + fmtN(to); node.classList.add("bump"); } };
+  node.textContent = "+0"; requestAnimationFrame(step);
+}
 function scoreView() {
   const good = state.results.filter((r) => r.ok).length, n = day.cards.length;
+  const onTime = dayKey() === iso(new Date());
   const title = good === n ? "Aura maximale. Tu rayonnes." : good === 0 ? "0 aura, 3 choses apprises." : good === n - 1 ? "Joli coup." : "L'aura, ça se cultive.";
+  const bonus = state.first && state.milestone ? state.milestone.bonus : 0;
   const el = $(`<section class="score-page">
     <p class="score-kicker">${esc(day.label)}</p>
-    <p class="mega">${state.first ? "+" + state.aura.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0") : good + "/" + n}</p>
+    <p class="mega" id="megaN">${state.first ? "+" + fmtN(state.aura + bonus) : good + "/" + n}</p>
     <p class="score-unit">${state.first ? "points d'aura" : "pour la gloire"}</p>
-    <span class="score-chip">${good}/${n} bonne${good > 1 ? "s" : ""} réponse${good > 1 ? "s" : ""}</span>
     <h1 class="page-title">${title}</h1>
-    ${state.first ? `<p class="score-total">Ton aura totale : <b>${totalAura().toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0")}</b></p>` : '<p class="score-total">Ce jour était déjà validé : pas de points en plus.</p>'}
+    <ul class="score-lines" id="scoreLines"></ul>
+    ${state.first ? `<p class="score-total">Ton aura totale : <b>${fmtN(totalAura())}</b></p>` : '<p class="score-total">Ce jour était déjà validé : pas de points en plus.</p>'}
     <div id="scoreWeek"></div>
     <div class="score-links"><button type="button" class="score-link" id="seeAnswers">Voir mes réponses</button><button type="button" class="score-link" id="shareBtn">Partager mon score</button></div>
     <div class="share-box" id="shareBox" hidden><p class="small">Copie ce texte et colle-le dans le groupe :</p><textarea readonly aria-label="Texte à partager"></textarea></div>
   </section>`);
-  // Un seul écran de fin (audit du 23/11) : score, série et semaine ensemble. Les réponses et le partage sont des liens.
-  const onTime = dayKey() === iso(new Date()), sn = currentStreak();
-  const wk = mineView(false); wk.classList.add("score-week");
-  wk.insertBefore($(`<p class="score-week-title">${state.first ? (onTime ? `<span class="score-flame"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.6 2.2-4.8.3 1.6 1.1 2.6 2.3 2.8-.6-2.6-.2-5.4.5-8Z"/></svg></span>Série : ${daysTxt(sn)}` : "Jour rattrapé : de l'aura, pas de série") : "Ta semaine"}</p>`), wk.firstChild);
-  if (state.first && state.milestone) wk.appendChild($(`<p class="milestone">Palier de ${state.milestone.m} jours : <b>+${state.milestone.bonus.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0")} aura</b></p>`));
-  if (state.first) { const t = onTime ? tipOnce("serie", "Ta série grandit chaque jour où tu joues le jour même. Reviens demain pour la prolonger.") : tipOnce("rattrape", "Un jour rattrapé rapporte de l'aura, mais ne prolonge pas ta série."); if (t) wk.appendChild($(t)); }
-  el.querySelector("#scoreWeek").replaceWith(wk);
-  if (good) setTimeout(confetti, 200);
+  const lines = [[good + (good > 1 ? " bonnes réponses" : " bonne réponse") + " sur " + n, state.first ? "+" + fmtN(state.aura) : ""]];
+  if (state.first && onTime) lines.push(["Joué le jour même", "Série +1"]);
+  if (state.first && !onTime) lines.push(["Jour rattrapé", "Pas de série"]);
+  if (bonus) lines.push(["Palier de " + state.milestone.m + " jours", "+" + fmtN(bonus)]);
+  const ul = el.querySelector("#scoreLines");
+  lines.forEach(([a, b], k) => { const li = $(`<li><span>${esc(a)}</span><b>${esc(b)}</b></li>`); li.style.animationDelay = (0.9 + k * 0.25) + "s"; ul.appendChild(li); });
+  if (state.first) setTimeout(() => countUp(el.querySelector("#megaN"), state.aura + bonus, 900), 150);
+  // Sans écran de série (jour rattrapé ou déjà joué), la semaine reste ici.
+  if (!(state.first && onTime)) { const wk = mineView(false); wk.classList.add("score-week"); wk.insertBefore($(`<p class="score-week-title">Ta semaine</p>`), wk.firstChild); if (state.first) { const t = tipOnce("rattrape", "Un jour rattrapé rapporte de l'aura, mais ne prolonge pas ta série."); if (t) wk.appendChild($(t)); } el.querySelector("#scoreWeek").replaceWith(wk); }
+  else el.querySelector("#scoreWeek").remove();
+  if (good) setTimeout(confetti, 1050);
   el.querySelector("#seeAnswers").onclick = () => { state.step = "recap"; render(); };
   const shb = el.querySelector("#shareBtn"); shb.onclick = () => shareScore(profile.days[dayKey()], shb);
   const b = $(`<button class="btn" type="button">Continuer</button>`);
-  b.onclick = () => { state.step = "intro"; render(); };
+  b.onclick = () => { state.step = state.first && onTime ? "streak" : "intro"; render(); };
   setCta(b);
   return el;
 }
@@ -1559,30 +1607,40 @@ function tipOnce(key, text) {
   profile.tips[key] = 1; tipsNow.add(key); saveProfile();
   return `<p class="tip">${text}</p>`;
 }
-// Série : un emoji, un grand chiffre, la semaine, une phrase.
+// Série (25/11) : l'éclat (le ✦ d'Aura), le chiffre, puis 7 étoiles vers le prochain joker.
 function streakView() {
-  const onTime = dayKey() === iso(new Date());
   const n = currentStreak();
-  const el = $(`<section class="center-page streak-page">
-    <div class="big-ico">${onTime ? '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.6 2.2-4.8.3 1.6 1.1 2.6 2.3 2.8-.6-2.6-.2-5.4.5-8Z"/></svg>' : '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M8 3v5M16 3v5"/></svg>'}</div>
-    <p class="mega">${onTime ? n : "+1"}</p>
-    <h1 class="page-title">${onTime ? (n > 1 ? "jours d'affilée" : "jour d'affilée") : "jour rattrapé"}</h1>
-    <div id="week"></div>
-    ${onTime && n >= 1 ? tipOnce("serie", "Ta série grandit chaque jour où tu joues le jour même. Reviens demain pour la prolonger.") : ""}
-    ${!onTime ? tipOnce("rattrape", "Un jour rattrapé rapporte de l'aura, mais ne prolonge pas ta série.") : ""}
-    ${state.milestone ? `<p class="milestone">Palier de ${state.milestone.m} jours : <b>+${state.milestone.bonus.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0")} aura</b></p>` : ""}
-    <p class="small center-text">${onTime ? "À demain !" + (nextMilestone(n) ? ` Prochain palier : ${nextMilestone(n)[0]} jours.` : "") : `De l'aura, mais pas de série. <b>Série : ${daysTxt(n)}.</b>`}</p>
-    <label class="field" for="name" id="nameField" hidden>Ton prénom, pour signer ton score
-      <input type="text" id="name" autocomplete="given-name" placeholder="Par exemple : Inès">
-    </label>
-    <button class="btn ghost small-btn" type="button" id="shareBtn">Partager mon score</button>
-    <div class="share-box" id="shareBox" hidden><p class="small">Copie ce texte et colle-le dans le groupe :</p><textarea readonly aria-label="Texte à partager"></textarea></div>
+  const lit = n % 7 === 0 && n > 0 ? 7 : n % 7, left = 7 - lit;
+  const note = state.gift === "now" ? "7 jours d'affilée : tu gagnes un joker."
+    : state.gift === "full" ? "7 jours d'affilée ! Tes 2 jokers sont déjà prêts."
+    : `Encore ${daysTxt(left)} pour gagner un joker.`;
+  const el = $(`<section class="eclat-page">
+    <span class="eclat-star" style="color:#d0679a">${STAR}</span>
+    <p class="mega">${n}</p>
+    <h1 class="page-title">${n > 1 ? "jours de série" : "jour de série"}</h1>
+    <div class="eclat-row" role="img" aria-label="${lit} jours sur 7 vers le prochain joker">${Array.from({ length: 6 }, (_, k) => `<span class="st${k < lit ? " on" : ""}" style="animation-delay:${0.3 + k * 0.08}s">${STAR}</span>`).join("")}${lit === 7 ? `<span class="st on" style="animation-delay:.8s">${STAR}</span>` : `<span class="jk-slot">${SHIELD}</span>`}</div>
+    <p class="eclat-note">${note}</p>
+    ${state.milestone ? `<p class="milestone">Palier de ${state.milestone.m} jours : <b>+${fmtN(state.milestone.bonus)} aura</b></p>` : ""}
+    ${tipOnce("serie", "Ta série grandit chaque jour où tu joues le jour même. Reviens demain pour la prolonger.")}
   </section>`);
-  const nf = el.querySelector("#nameField"), ni = el.querySelector("#name");
-  if (!profile.name) { nf.hidden = false; ni.addEventListener("input", () => { profile.name = ni.value.trim(); state.name = profile.name; saveProfile(); }); }
-  const shb = el.querySelector("#shareBtn"); shb.onclick = () => shareScore(profile.days[dayKey()], shb);
-  el.querySelector("#week").replaceWith(mineView(false));
   const b = $(`<button class="btn" type="button">Continuer</button>`);
+  b.onclick = () => { state.step = state.gift === "now" ? "gift" : "intro"; render(); };
+  setCta(b);
+  return el;
+}
+// Joker de série (25/11) : le cadeau des 7 jours, sur son propre écran.
+function giftView() {
+  const j = profile.jokers || 0;
+  const el = $(`<section class="gift-page">
+    <div class="gift-box">${SHIELD}</div>
+    <p class="gift-kicker">7 jours d'affilée</p>
+    <h1 class="page-title">Un joker pour toi</h1>
+    <p class="eclat-note">Il rattrape un jour raté sans casser ta série.</p>
+    <div class="gift-dots" aria-label="${jokerTxt(j)} sur ${JOKER_MAX}">${Array.from({ length: JOKER_MAX }, (_, k) => `<i class="${k < j ? "" : "off"}"></i>`).join("")}</div>
+    <p class="small">${jokerTxt(j)} sur ${JOKER_MAX}</p>
+  </section>`);
+  setTimeout(confetti, 300);
+  const b = $(`<button class="btn" type="button">Récupérer mon joker</button>`);
   b.onclick = () => { state.step = "intro"; render(); };
   setCta(b);
   return el;
@@ -1660,7 +1718,7 @@ function digListView() {
     </div>
     <div class="joker-bar">
       <span class="jk-dots">${[0, 1].map((k) => `<span class="jk${k < (profile.jokers || 0) ? " on" : ""}">J</span>`).join("")}</span>
-      <span>${jokersFull() ? "<b>Tes 2 jokers sont prêts.</b> Creuse pour gagner de l'aura." : "<b>Gagne des jokers</b> en terminant un sujet."}</span>
+      <span>${jokersFull() ? "<b>Tes 2 jokers sont prêts.</b> Creuse pour gagner de l'aura." : "<b>Gagne des jokers</b> en terminant un sujet, ou avec 7 jours de série."}</span>
     </div>
   </section>`);
   CREUSER.forEach((t, n) => {
@@ -1812,7 +1870,7 @@ if (!profile.seenIntro) setTimeout(() => {
       <p class="eyebrow"><b>Bienvenue sur Aura</b></p>
       <h1 class="hook">Comment ça marche</h1>
       <div class="howto-row"><span class="rule-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.6 4.6 2.4 6.9 7 7.6v.8c-4.6.7-6.4 3-7 7.6h-.8c-.6-4.6-2.4-6.9-7-7.6v-.8c4.6-.7 6.4-3 7-7.6Z"/></svg></span><p><b>3 questions par jour</b> sur l'actu. Chaque bonne réponse rapporte de l'aura.</p></div>
-      <div class="howto-row"><span class="rule-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.6 2.2-4.8.3 1.6 1.1 2.6 2.3 2.8-.6-2.6-.2-5.4.5-8Z"/></svg></span><p><b>Joue chaque jour</b> pour allonger ta série.</p></div>
+      <div class="howto-row"><span class="rule-ico"><svg class="ico star-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1c.9 5.6 4.4 9.1 11 11-6.6 1.9-10.1 5.4-11 11-.9-5.6-4.4-9.1-11-11 6.6-1.9 10.1-5.4 11-11Z"/></svg></span><p><b>Joue chaque jour</b> pour allonger ta série.</p></div>
       <div class="howto-row"><span class="rule-ico"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg></span><p><b>Creuse un sujet</b> pour gagner plus d'aura et des jokers.</p></div>
       <button class="btn btn-play" type="button"><span class="play-ico" aria-hidden="true">▶</span>C'est parti</button>
     </div>
