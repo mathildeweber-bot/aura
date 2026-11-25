@@ -458,7 +458,11 @@ body.step-gift, body.step-gift .cta-bar { background: #e8f0fd; box-shadow: none;
 .fr-streak { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-weight: 700; color: #d0679a; white-space: nowrap; }
 .fr-streak svg { width: 13px; height: 13px; }
 .fr-aura { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.fr-head { margin: 0; display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); padding: 0 4px; }
+.fr-group { margin: 0; font-size: 20px; font-weight: 800; }
+.fr-week { margin: -8px 0 0; font-size: 14px; color: var(--muted); }
+button.fr-streak { font: inherit; font-size: 13px; font-weight: 700; background: none; border: 0; padding: 6px 2px; cursor: pointer; }
+.fr-bubble { margin: -2px 0 0 auto; display: inline-flex; align-items: center; gap: 4px; align-self: flex-end; background: #111111; color: #ffffff; font-size: 13px; font-weight: 600; border-radius: 999px; padding: 5px 12px; }
+.fr-bubble svg { width: 12px; height: 12px; color: #f2a6c4; }
 .fr-note { margin: 0; font-size: 13px; color: var(--muted); text-align: center; }
 .fr-link { font: inherit; font-size: 14px; font-weight: 600; background: none; border: 0; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px; align-self: center; }
 .fr-toast { margin: 0; background: var(--menthe, #dff3e4); color: #111111; border-radius: 14px; padding: 10px 14px; font-size: 15px; }
@@ -1127,7 +1131,7 @@ const RULES = [
   ["R", "Rattraper un jour", "300 aura par bonne réponse, pas de série. Jouer le jour même rapporte plus."],
   ["J", "Le joker", "Il protège ta série si tu rates un jour. Tu en gagnes un tous les 7 jours de série, ou en terminant un sujet de Creuser. 2 au maximum : au-delà, pas de joker en plus."],
   ["C", "Creuser", "300 aura par bonne réponse. 3 000 de bonus si tout est bon."],
-  ["1", "Le classement", "Entre amis, du lundi au dimanche, remis à zéro chaque lundi. Seuls les jours joués le jour même comptent."],
+  ["1", "Le classement", "Entre amis, du lundi au dimanche, remis à zéro chaque lundi. Il compte les questions du jour jouées le jour même et les sujets creusés cette semaine."],
 ];
 function profileView() {
   const fmt = (n) => n.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0");
@@ -1734,8 +1738,18 @@ async function sbSync() {
       await sb("day_scores", { method: "POST", body: { player_id: sbSession.uid, day: k, good: Math.min(3, d.good), aura: Math.min(3000, d.aura) }, prefer: "resolution=ignore-duplicates" });
       profile.sbSent[k] = 1; saveProfile();
     }
+    const q = profile.sbDig || [];
+    if (q.length) {
+      await sb("dig_scores", { method: "POST", body: q.map((x) => ({ player_id: sbSession.uid, theme: x.t, q: x.q, aura: x.q === -1 ? DIG_PERFECT : DIG_GAIN })), prefer: "resolution=ignore-duplicates" });
+      profile.sbDig = (profile.sbDig || []).slice(q.length); saveProfile();
+    }
     await sbUpdatePlayer({ streak: currentStreak() });
   } catch (e) {}
+}
+// « Semaine du 23 au 29 novembre » (du lundi au dimanche).
+function weekLabel() {
+  const d = new Date(); const mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7)); const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+  return mon.getMonth() === sun.getMonth() ? `Semaine du ${mon.getDate()} au ${sun.getDate()} ${MONTHS[sun.getMonth()]}` : `Semaine du ${mon.getDate()} ${MONTHS[mon.getMonth()]} au ${sun.getDate()} ${MONTHS[sun.getMonth()]}`;
 }
 const inviteUrl = (code) => location.origin + location.pathname + "?g=" + code;
 async function shareInvite(g, btn) {
@@ -1804,16 +1818,17 @@ function friendsView() {
         const chips = $(`<div class="fr-chips"></div>`);
         groups.forEach((x) => { const c = $(`<button type="button" class="fr-chip${x.code === g.code ? " on" : ""}">${esc(x.name)}</button>`); c.onclick = () => { profile.curGroup = x.code; saveProfile(); render(false); }; chips.appendChild(c); });
         body.appendChild(chips);
-      } else body.appendChild($(`<p class="fr-lead"><b>${esc(g.name)}</b></p>`));
-      body.appendChild($(`<p class="fr-head"><span>Aura gagnée cette semaine</span><span>avec les questions du jour</span></p>`));
+      } else body.appendChild($(`<p class="fr-group">${esc(g.name)}</p>`));
+      body.appendChild($(`<p class="fr-week">${weekLabel()}</p>`));
       const rows = await sb("rpc/leaderboard", { method: "POST", body: { group_code: g.code } });
       const ol = $(`<ol class="fr-board"></ol>`);
       rows.forEach((r, k) => {
-        ol.appendChild($(`<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}</span>${r.streak > 0 ? `<span class="fr-streak" title="Série">${STAR}${r.streak}</span>` : ""}<span class="fr-aura">${fmtN(r.week_aura)}</span></li>`));
+        ol.appendChild($(`<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}</span>${r.streak > 0 ? `<button type="button" class="fr-streak" aria-label="${daysTxt(r.streak)} de série" data-n="${r.streak}">${STAR}${r.streak}</button>` : ""}<span class="fr-aura">${fmtN(r.week_aura)}</span></li>`));
       });
       body.appendChild(ol);
+      ol.querySelectorAll(".fr-streak").forEach((b) => { b.onclick = () => { const old = body.querySelector(".fr-bubble"); if (old) old.remove(); const n = Number(b.dataset.n); const t = $(`<p class="fr-bubble" role="status">${STAR}${daysTxt(n)} de série</p>`); b.closest(".fr-row").after(t); setTimeout(() => t.remove(), 2500); }; });
       if (rows.length < 2) body.appendChild($(`<p class="fr-note">Personne d'autre pour l'instant. Invite tes amis !</p>`));
-      body.appendChild($(`<p class="fr-note">Le classement compte les questions du jour, jouées le jour même. Il est remis à zéro chaque lundi. Ton aura totale, en haut, compte aussi les jours passés et Creuser. ✦ = série.</p>`));
+      body.appendChild($(`<p class="fr-note">Ce qui compte : les questions du jour jouées le jour même, et les sujets creusés cette semaine.<br>Tout repart à zéro lundi.</p>`));
       const inv = $(`<button class="btn btn-play" type="button">Inviter des amis</button>`); inv.onclick = () => shareInvite(g, inv); if (tab === "friends") setCta(inv);
       const more = $(`<button type="button" class="fr-link">Créer un autre groupe</button>`);
       more.onclick = () => { const v = (prompt("Nom du nouveau groupe :") || "").trim(); if (v.length < 2) return; sb("rpc/create_group", { method: "POST", body: { group_name: v } }).then((code) => { profile.curGroup = code; saveProfile(); render(false); }).catch((e) => alert(sbMsg(e))); };
@@ -1967,7 +1982,10 @@ function digVerdict(t, c, ok, i) {
     if ((rec.jokerAt || 0) < t.questions.length) { rec.jokerAt = t.questions.length; gotJoker = grantJoker(t.id) ? "now" : "full"; if (gotJoker === "now") rec.joker = 1; }
     if (rec.oks.every(Boolean) && !rec.perfect) { rec.perfect = 1; rec.aura += DIG_PERFECT; perfect = true; }
   }
-  profile.dig[t.id] = rec; saveProfile();
+  profile.dig[t.id] = rec;
+  // Classement (25/11) : l'aura de Creuser compte pour la semaine où elle est gagnée.
+  if (profile.sbReady && (gain || perfect)) { profile.sbDig = profile.sbDig || []; if (gain) profile.sbDig.push({ t: t.id, q: i }); if (perfect) profile.sbDig.push({ t: t.id, q: -1 }); }
+  saveProfile(); sbSync();
   dig.reward = last ? { gotJoker, perfect } : null;
   if (gain) setAura(true);
   const word = t.serious ? (ok ? "Exact." : "Pas tout à fait.") : ok ? "Bien vu !" : "Raté !";
