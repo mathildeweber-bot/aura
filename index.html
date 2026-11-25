@@ -372,6 +372,8 @@ body.in-quiz { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 .past-btn { margin-top: 2px; }
 .dig-push { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 14px; border-radius: 18px; border: 2px solid #e0457b; background: var(--surface); color: var(--ink); margin: 0; }
 .dig-push-kicker { font-family: var(--label); font-weight: 700; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; color: #e0457b; }
+.dig-push-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dig-push-all { font: inherit; font-size: 14px; font-weight: 600; color: #e0457b; background: none; border: 0; padding: 4px 0; cursor: pointer; white-space: nowrap; }
 .dig-push-row { display: flex; align-items: center; gap: 10px; width: 100%; font: inherit; color: inherit; text-align: left; background: none; border: 0; padding: 6px 0; cursor: pointer; }
 .dig-push-row + .dig-push-row { border-top: 1px solid var(--line, #eee); padding-top: 12px; }
 .dig-push-row > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; gap: 2px; }
@@ -1191,7 +1193,8 @@ function introView() {
       const turn = Number(dayKey().slice(-2));
       const picks = open.map((t, n) => ({ t, r: rank(t), o: (n + turn) % open.length })).sort((x, y) => x.r - y.r || x.o - y.o).slice(0, 2).map((x) => x.t);
       if (picks.length) {
-        const box = $(`<div class="dig-push"><span class="dig-push-kicker">Envie de plus d'aura ?</span></div>`);
+        const box = $(`<div class="dig-push"><div class="dig-push-head"><span class="dig-push-kicker">Envie de plus d'aura ?</span><button type="button" class="dig-push-all">Tous les sujets ›</button></div></div>`);
+        box.querySelector(".dig-push-all").onclick = () => { tab = "dig"; dig.step = "list"; render(); };
         picks.forEach((pick) => {
           const left = pick.questions.length - digOks(pick).length;
           const jk = !jokersFull() && ((profile.dig[pick.id] || {}).jokerAt || 0) < pick.questions.length;
