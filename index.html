@@ -296,6 +296,8 @@ body.in-quiz { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 .sheet-verdict { margin: 0; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
 .sv-ico { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; color: #fff; }
 .ok .sv-ico { background: var(--good); } .ko .sv-ico { background: var(--bad); }
+.float-gain { position: fixed; z-index: 40; transform: translate(-50%, -50%); background: #111111; color: #ffffff; font-weight: 700; font-size: 15px; border-radius: 999px; padding: 5px 12px; white-space: nowrap; pointer-events: none; animation: floatUp 1.2s cubic-bezier(.2,.9,.3,1) forwards; }
+@keyframes floatUp { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.6); } 20% { opacity: 1; transform: translate(-50%, -80%) scale(1.08); } 70% { opacity: 1; transform: translate(-50%, -160%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -200%) scale(1); } }
 .sv-gain { margin-left: auto; font-size: 15px; font-variant-numeric: tabular-nums; }
 .ok .sv-gain { color: var(--good); } .ko .sv-gain { color: var(--bad); }
 .sheet-text { margin: 0; font-size: 15px; line-height: 1.5; }
@@ -1499,7 +1501,16 @@ function validate() {
   state.results[state.i] = { picks: p, ok };
   if (ok) state.aura += GAIN;
   render(false);
-  if (ok) { setAura(true); confetti(); }
+  if (ok) { setAura(true); confetti(); floatGain(document.querySelector(".opts .ans.right.mine") || document.querySelector(".opts .ans.right"), GAIN); }
+}
+// Gain qui s'envole depuis la bonne réponse (25/11, inspiré du quiz Alan).
+function floatGain(from, n) {
+  if (!from || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const r = from.getBoundingClientRect();
+  const g = $(`<span class="float-gain" aria-hidden="true">+${n.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0")} ✦</span>`);
+  g.style.left = (r.left + r.width / 2) + "px"; g.style.top = (r.top + r.height / 2) + "px";
+  document.body.appendChild(g);
+  setTimeout(() => g.remove(), 1300);
 }
 
 // Enregistre le jour une seule fois, à la fin de la 3e question.
