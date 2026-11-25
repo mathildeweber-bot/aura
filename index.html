@@ -1617,7 +1617,7 @@ function streakView() {
   const el = $(`<section class="eclat-page">
     <span class="eclat-star" style="color:#d0679a">${STAR}</span>
     <p class="mega">${n}</p>
-    <h1 class="page-title">${n > 1 ? "jours de série" : "jour de série"}</h1>
+    <h1 class="page-title">${n > 1 ? "jours d'éclat" : "jour d'éclat"}</h1>
     <div class="eclat-row" role="img" aria-label="${lit} jours sur 7 vers le prochain joker">${Array.from({ length: 6 }, (_, k) => `<span class="st${k < lit ? " on" : ""}" style="animation-delay:${0.3 + k * 0.08}s">${STAR}</span>`).join("")}${lit === 7 ? `<span class="st on" style="animation-delay:.8s">${STAR}</span>` : `<span class="jk-slot">${SHIELD}</span>`}</div>
     <p class="eclat-note">${note}</p>
     ${state.milestone ? `<p class="milestone">Palier de ${state.milestone.m} jours : <b>+${fmtN(state.milestone.bonus)} aura</b></p>` : ""}
