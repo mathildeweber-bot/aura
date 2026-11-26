@@ -459,6 +459,10 @@ body.step-gift, body.step-gift .cta-bar { background: #e8f0fd; box-shadow: none;
 .fr-medal b { position: relative; top: 4px; font-family: var(--display); font-size: 14px; font-weight: 400; color: #111111; }
 .fr-name { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fr-name small { font-weight: 500; color: var(--muted); margin-left: 4px; }
+.palm .howto-box { gap: 14px; }
+.palm .fr-board { text-align: left; }
+.palm-week { margin: -6px 0 0; font-size: 14px; color: var(--muted); }
+.fr-title { display: block; font-style: normal; font-size: 13px; font-weight: 600; color: #d0679a; margin-top: 1px; }
 .fr-row.me .fr-name small { color: #6b6a70; }
 .fr-streak { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-weight: 700; color: #d0679a; white-space: nowrap; }
 .fr-streak svg { width: 13px; height: 13px; }
@@ -589,7 +593,7 @@ body.has-cta { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
   <nav class="tabs" aria-label="Sections">
     <button type="button" class="tab" id="tabPlay" data-tab="play">Jouer</button>
     <button type="button" class="tab" id="tabDig" data-tab="dig"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>Creuser</button>
-    <button type="button" class="tab" id="tabFriends" data-tab="friends"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5c0 2.5 1.3 4 3.2 4.3M16 6h3c0 2.5-1.3 4-3.2 4.3M12 13v4M8.5 20h7M10 17h4v3h-4z"/></svg>Classement</button>
+    <button type="button" class="tab" id="tabFriends" data-tab="friends"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5c0 2.5 1.3 4 3.2 4.3M16 6h3c0 2.5-1.3 4-3.2 4.3M12 13v4M8.5 20h7M10 17h4v3h-4z"/></svg>Palmarès</button>
     <button type="button" class="tab" id="tabAura" data-tab="aura">Mon aura</button>
   </nav>
 
@@ -1171,7 +1175,7 @@ const RULES = [
   ["R", "Rattraper un jour", "300 aura par bonne réponse, pas de série. Jouer le jour même rapporte plus."],
   ["J", "Le joker", "Il protège ta série si tu rates un jour. Tu en gagnes un tous les 7 jours de série, ou en terminant un sujet de Creuser. 2 au maximum : au-delà, pas de joker en plus."],
   ["C", "Creuser", "300 aura par bonne réponse. 3 000 de bonus si tout est bon."],
-  ["1", "Le classement", "Entre amis, du lundi au dimanche, remis à zéro chaque lundi. Il compte les questions du jour jouées le jour même et les sujets creusés cette semaine."],
+  ["1", "Le Palmarès", "Le classement entre amis, du lundi au dimanche, remis à zéro chaque lundi. Il compte les questions du jour jouées le jour même et les sujets creusés cette semaine."],
 ];
 function profileView() {
   const fmt = (n) => n.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0");
@@ -1787,8 +1791,8 @@ async function sbSync() {
   } catch (e) {}
 }
 // « Semaine du 23 au 29 novembre » (du lundi au dimanche).
-function weekLabel() {
-  const d = new Date(); const mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7)); const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+function weekLabel(d = new Date()) {
+  const mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7)); const sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
   return mon.getMonth() === sun.getMonth() ? `Semaine du ${mon.getDate()} au ${sun.getDate()} ${MONTHS[sun.getMonth()]}` : `Semaine du ${mon.getDate()} ${MONTHS[mon.getMonth()]} au ${sun.getDate()} ${MONTHS[sun.getMonth()]}`;
 }
 const inviteUrl = (code) => location.origin + location.pathname + "?g=" + code;
@@ -1800,6 +1804,12 @@ async function shareInvite(g, btn) {
   catch (e) { prompt("Copie ce lien et envoie-le :", url); }
 }
 let frToast = "";
+// Titres du Palmarès (26/11) : les 3 premiers qui ont de l'aura, et le dernier à partir de 4 joueurs. Seuls emojis autorisés dans l'app.
+function frTitle(rows, k) {
+  if (k < 3 && rows[k].week_aura > 0) return ["Le GOAT 🐐", "Presque GOAT 🐑", "Le Bronzé 😎"][k];
+  if (rows.length >= 4 && k === rows.length - 1) return "Aura en PLS 🫠";
+  return "";
+}
 // Médailles du podium (or, argent, bronze), au trait comme les autres icônes.
 const MEDAL = [["#f5c84c", "#b8891a"], ["#d9dde3", "#8a919c"], ["#e3a678", "#a8643a"]];
 const frMedal = (k) => `<span class="fr-medal" aria-label="${k + 1}"><svg viewBox="0 0 28 32" aria-hidden="true"><path d="M9 1l3 9M19 1l-3 9" stroke="${MEDAL[k][1]}" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="14" cy="20" r="10" fill="${MEDAL[k][0]}" stroke="${MEDAL[k][1]}" stroke-width="1.5"/></svg><b>${k + 1}</b></span>`;
@@ -1813,7 +1823,7 @@ function frPush(rows) {
   const goal = k > 0
     ? (gap === 0 ? `Tu es à égalité avec ${who}.` : `${who} a ${fmtN(gap)} aura d'avance sur toi.`)
     : (gap === 0 ? `Tu es en tête, à égalité avec ${who}.` : `Tu es en tête. ${who} est à ${fmtN(gap)} aura derrière toi.`);
-  const box = $(`<div class="dig-push fr-push"><span class="dig-push-kicker">${k > 0 ? "Grimpe dans le classement" : "Garde ta place"}</span><p class="fr-goal">${goal}</p></div>`);
+  const box = $(`<div class="dig-push fr-push"><span class="dig-push-kicker">${k > 0 ? "Grimpe dans le Palmarès" : "Garde ta place"}</span><p class="fr-goal">${goal}</p></div>`);
   if (!played) {
     const r = $(`<button type="button" class="dig-push-row"><span class="tile-ico" style="background:#fdeef4">▶</span><span><b>Joue les questions du jour</b><small>Jusqu'à ${fmtN(3 * GAIN)} aura aujourd'hui</small></span><span aria-hidden="true">›</span></button>`);
     r.onclick = () => { tab = "play"; render(); }; box.appendChild(r);
@@ -1826,7 +1836,7 @@ function frPush(rows) {
 }
 
 function friendsView() {
-  const el = $(`<section class="fr-page"><h1 class="dig-title">Classement</h1></section>`);
+  const el = $(`<section class="fr-page"><h1 class="dig-title">Palmarès</h1></section>`);
   const err = (box, msg) => { let p = box.querySelector(".fr-err"); if (!p) { p = $(`<p class="fr-err" role="alert"></p>`); box.appendChild(p); } p.textContent = msg; };
   // 1. Pas encore de pseudo
   if (!profile.sbReady) {
@@ -1888,7 +1898,7 @@ function friendsView() {
       const rows = await sb("rpc/leaderboard", { method: "POST", body: { group_code: g.code } });
       const ol = $(`<ol class="fr-board"></ol>`);
       rows.forEach((r, k) => {
-        ol.appendChild($(`<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${r.week_aura > 0 && k < 3 ? frMedal(k) : k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}</span>${r.streak > 0 ? `<button type="button" class="fr-streak" aria-label="${daysTxt(r.streak)} de série" data-n="${r.streak}">${STAR}${r.streak}</button>` : ""}<span class="fr-aura">${fmtN(r.week_aura)}</span></li>`));
+        ol.appendChild($(`<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${r.week_aura > 0 && k < 3 ? frMedal(k) : k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}${frTitle(rows, k) ? `<em class="fr-title">${frTitle(rows, k)}</em>` : ""}</span>${r.streak > 0 ? `<button type="button" class="fr-streak" aria-label="${daysTxt(r.streak)} de série" data-n="${r.streak}">${STAR}${r.streak}</button>` : ""}<span class="fr-aura">${fmtN(r.week_aura)}</span></li>`));
       });
       body.appendChild(ol);
       ol.querySelectorAll(".fr-streak").forEach((b) => { b.onclick = () => { const old = body.querySelector(".fr-bubble"); if (old) old.remove(); const n = Number(b.dataset.n); const t = $(`<p class="fr-bubble" role="status">${STAR}${daysTxt(n)} de série</p>`); b.closest(".fr-row").after(t); setTimeout(() => t.remove(), 2500); }; });
@@ -2128,6 +2138,35 @@ reset();
 { const g = new URLSearchParams(location.search).get("g");
   if (g && /^[a-z0-9]{4,16}$/i.test(g)) { profile.pendingJoin = g.toLowerCase(); saveProfile(); history.replaceState(null, "", location.pathname + location.hash); tab = "friends"; render(); } }
 sbSync();
+// Palmarès de la semaine passée (26/11) : le lundi (ou à la 1re ouverture de la semaine), une seule fois.
+async function showPalmares() {
+  if (!profile.sbReady || !sbSession || document.querySelector(".howto")) return;
+  const t = new Date(), mon = new Date(t.getFullYear(), t.getMonth(), t.getDate() - ((t.getDay() + 6) % 7) - 7), key = iso(mon);
+  if (profile.palmaresSeen === key) return;
+  try {
+    const groups = await sb("groups?select=name,code&order=created_at");
+    const g = groups.find((x) => x.code === profile.curGroup) || groups[0];
+    if (!g) return;
+    const rows = await sb("rpc/palmares", { method: "POST", body: { group_code: g.code, week_start: key } });
+    profile.palmaresSeen = key; saveProfile();
+    if (!rows.some((r) => r.week_aura > 0)) return;
+    const show = rows.map((r, k) => ({ r, k })).filter(({ r, k }) => frTitle(rows, k) || r.is_me);
+    const ov = $(`<div class="howto palm" role="dialog" aria-label="Palmarès de la semaine">
+      <div class="howto-box">
+        <p class="eyebrow"><b>Palmarès de « ${esc(g.name)} »</b></p>
+        <p class="palm-week">${weekLabel(mon)}</p>
+        <ol class="fr-board">${show.map(({ r, k }) => `<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${r.week_aura > 0 && k < 3 ? frMedal(k) : k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}${frTitle(rows, k) ? `<em class="fr-title">${frTitle(rows, k)}</em>` : ""}</span><span class="fr-aura">${fmtN(r.week_aura)}</span></li>`).join("")}</ol>
+        <p class="small">Nouvelle semaine : tout repart à zéro.</p>
+        <button class="btn btn-play" type="button">C'est reparti</button>
+      </div>
+    </div>`);
+    ov.querySelector(".btn").onclick = () => ov.remove();
+    document.body.appendChild(ov);
+    if (rows[0].is_me) setTimeout(confetti, 300);
+    track("palmares-vu", "classement");
+  } catch (e) { /* sans réseau : on réessaiera à la prochaine ouverture */ }
+}
+setTimeout(showPalmares, 1400);
 // Premier lancement (23/11) : « Comment ça marche », une seule fois, après l'écran d'ouverture.
 if (!profile.seenIntro) setTimeout(() => {
   const ov = $(`<div class="howto" role="dialog" aria-label="Comment ça marche">
