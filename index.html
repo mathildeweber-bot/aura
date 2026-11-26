@@ -381,6 +381,8 @@ body.in-quiz { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 .dig-push-row > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .dig-push-row small { font-size: 13px; color: var(--muted); }
 .dig-push .tile-ico { width: 40px; height: 40px; flex: none; }
+.fr-goal { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.3; }
+.fr-push .tile-ico { display: grid; place-items: center; font-size: 15px; color: #111111; }
 .mine-head { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 15px; }
 .flame { font-size: 14px; font-weight: 700; background: var(--surface); border-radius: 999px; padding: 3px 10px; }
 .mine { background: var(--surface); border: 1px solid var(--line); box-shadow: 0 2px 12px rgba(0,0,0,.04); padding: 14px; gap: 12px; border-radius: 22px; }
@@ -1795,6 +1797,28 @@ async function shareInvite(g, btn) {
   catch (e) { prompt("Copie ce lien et envoie-le :", url); }
 }
 let frToast = "";
+// Encourage à dépasser le joueur juste devant (ou à garder la 1re place) : jouer le jour, puis creuser.
+function frPush(rows) {
+  const k = rows.findIndex((r) => r.is_me);
+  if (k < 0 || rows.length < 2) return null;
+  const me = rows[k], o = k > 0 ? rows[k - 1] : rows[1];
+  const gap = Math.abs(o.week_aura - me.week_aura), who = esc(o.pseudo);
+  const played = !!profile.days[iso(new Date())];
+  const goal = k > 0
+    ? (gap === 0 ? `Tu es à égalité avec ${who}.` : `${who} a ${fmtN(gap)} aura d'avance sur toi.`)
+    : (gap === 0 ? `Tu es en tête, à égalité avec ${who}.` : `Tu es en tête. ${who} est à ${fmtN(gap)} aura derrière toi.`);
+  const box = $(`<div class="dig-push fr-push"><span class="dig-push-kicker">${k > 0 ? "Grimpe dans le classement" : "Garde ta place"}</span><p class="fr-goal">${goal}</p></div>`);
+  if (!played) {
+    const r = $(`<button type="button" class="dig-push-row"><span class="tile-ico" style="background:#fdeef4">▶</span><span><b>Joue les questions du jour</b><small>Jusqu'à ${fmtN(3 * GAIN)} aura aujourd'hui</small></span><span aria-hidden="true">›</span></button>`);
+    r.onclick = () => { tab = "play"; render(); }; box.appendChild(r);
+  }
+  const n = Math.floor(gap / DIG_GAIN) + 1;
+  const sub = k > 0 && played ? `${n} bonne${n > 1 ? "s" : ""} réponse${n > 1 ? "s" : ""} pour passer devant` : `+${DIG_GAIN} aura par bonne réponse, ${fmtN(DIG_PERFECT)} si sujet parfait`;
+  const d = $(`<button type="button" class="dig-push-row"><span class="tile-ico" style="background:var(--menthe, #dff3e4)">${DIG_ICO}</span><span><b>Creuse un sujet</b><small>${sub}</small></span><span aria-hidden="true">›</span></button>`);
+  d.onclick = () => { tab = "dig"; dig.step = "list"; render(); }; box.appendChild(d);
+  return box;
+}
+
 function friendsView() {
   const el = $(`<section class="fr-page"><h1 class="dig-title">Classement</h1></section>`);
   const err = (box, msg) => { let p = box.querySelector(".fr-err"); if (!p) { p = $(`<p class="fr-err" role="alert"></p>`); box.appendChild(p); } p.textContent = msg; };
@@ -1863,6 +1887,7 @@ function friendsView() {
       body.appendChild(ol);
       ol.querySelectorAll(".fr-streak").forEach((b) => { b.onclick = () => { const old = body.querySelector(".fr-bubble"); if (old) old.remove(); const n = Number(b.dataset.n); const t = $(`<p class="fr-bubble" role="status">${STAR}${daysTxt(n)} de série</p>`); b.closest(".fr-row").after(t); setTimeout(() => t.remove(), 2500); }; });
       if (rows.length < 2) body.appendChild($(`<p class="fr-note">Personne d'autre pour l'instant. Invite tes amis !</p>`));
+      const push = frPush(rows); if (push) body.appendChild(push);
       body.appendChild($(`<p class="fr-note">Ce qui compte : les questions du jour jouées le jour même, et les sujets creusés cette semaine.<br>Tout repart à zéro lundi.</p>`));
       const inv = $(`<button class="btn btn-play" type="button">Inviter des amis</button>`); inv.onclick = () => shareInvite(g, inv); if (tab === "friends") setCta(inv);
       const more = $(`<button type="button" class="fr-link">Créer un autre groupe</button>`);
