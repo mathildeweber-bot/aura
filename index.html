@@ -454,6 +454,9 @@ body.step-gift, body.step-gift .cta-bar { background: #e8f0fd; box-shadow: none;
 .fr-row { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
 .fr-row.me { background: #fdeef4; border-color: #f2c3d6; color: #111111; }
 .fr-rank { width: 26px; font-family: var(--display); font-size: 20px; text-align: center; }
+.fr-medal { display: inline-grid; place-items: center; width: 28px; height: 32px; position: relative; }
+.fr-medal svg { width: 28px; height: 32px; position: absolute; inset: 0; }
+.fr-medal b { position: relative; top: 4px; font-family: var(--display); font-size: 14px; font-weight: 400; color: #111111; }
 .fr-name { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fr-name small { font-weight: 500; color: var(--muted); margin-left: 4px; }
 .fr-row.me .fr-name small { color: #6b6a70; }
@@ -1797,6 +1800,9 @@ async function shareInvite(g, btn) {
   catch (e) { prompt("Copie ce lien et envoie-le :", url); }
 }
 let frToast = "";
+// Médailles du podium (or, argent, bronze), au trait comme les autres icônes.
+const MEDAL = [["#f5c84c", "#b8891a"], ["#d9dde3", "#8a919c"], ["#e3a678", "#a8643a"]];
+const frMedal = (k) => `<span class="fr-medal" aria-label="${k + 1}"><svg viewBox="0 0 28 32" aria-hidden="true"><path d="M9 1l3 9M19 1l-3 9" stroke="${MEDAL[k][1]}" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="14" cy="20" r="10" fill="${MEDAL[k][0]}" stroke="${MEDAL[k][1]}" stroke-width="1.5"/></svg><b>${k + 1}</b></span>`;
 // Encourage à dépasser le joueur juste devant (ou à garder la 1re place) : jouer le jour, puis creuser.
 function frPush(rows) {
   const k = rows.findIndex((r) => r.is_me);
@@ -1882,7 +1888,7 @@ function friendsView() {
       const rows = await sb("rpc/leaderboard", { method: "POST", body: { group_code: g.code } });
       const ol = $(`<ol class="fr-board"></ol>`);
       rows.forEach((r, k) => {
-        ol.appendChild($(`<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}</span>${r.streak > 0 ? `<button type="button" class="fr-streak" aria-label="${daysTxt(r.streak)} de série" data-n="${r.streak}">${STAR}${r.streak}</button>` : ""}<span class="fr-aura">${fmtN(r.week_aura)}</span></li>`));
+        ol.appendChild($(`<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${r.week_aura > 0 && k < 3 ? frMedal(k) : k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}</span>${r.streak > 0 ? `<button type="button" class="fr-streak" aria-label="${daysTxt(r.streak)} de série" data-n="${r.streak}">${STAR}${r.streak}</button>` : ""}<span class="fr-aura">${fmtN(r.week_aura)}</span></li>`));
       });
       body.appendChild(ol);
       ol.querySelectorAll(".fr-streak").forEach((b) => { b.onclick = () => { const old = body.querySelector(".fr-bubble"); if (old) old.remove(); const n = Number(b.dataset.n); const t = $(`<p class="fr-bubble" role="status">${STAR}${daysTxt(n)} de série</p>`); b.closest(".fr-row").after(t); setTimeout(() => t.remove(), 2500); }; });
