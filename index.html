@@ -462,6 +462,7 @@ body.step-gift, body.step-gift .cta-bar { background: #e8f0fd; box-shadow: none;
 .palm .howto-box { gap: 14px; }
 .palm .fr-board { text-align: left; }
 .palm-week { margin: -6px 0 0; font-size: 14px; color: var(--muted); }
+.fr-gap { list-style: none; text-align: center; color: var(--muted); line-height: 1; }
 .fr-title { display: block; font-style: normal; font-size: 13px; font-weight: 600; color: #d0679a; margin-top: 1px; }
 .fr-row.me .fr-name small { color: #6b6a70; }
 .fr-streak { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-weight: 700; color: #d0679a; white-space: nowrap; }
@@ -1175,7 +1176,7 @@ const RULES = [
   ["R", "Rattraper un jour", "300 aura par bonne réponse, pas de série. Jouer le jour même rapporte plus."],
   ["J", "Le joker", "Il protège ta série si tu rates un jour. Tu en gagnes un tous les 7 jours de série, ou en terminant un sujet de Creuser. 2 au maximum : au-delà, pas de joker en plus."],
   ["C", "Creuser", "300 aura par bonne réponse. 3 000 de bonus si tout est bon."],
-  ["1", "Le Palmarès", "Le classement entre amis, du lundi au dimanche, remis à zéro chaque lundi. Il compte les questions du jour jouées le jour même et les sujets creusés cette semaine."],
+  ["1", "Le Palmarès", "Le classement de tous les joueurs, ou de tes groupes d'amis, du lundi au dimanche, remis à zéro chaque lundi. Il compte les questions du jour jouées le jour même et les sujets creusés cette semaine."],
 ];
 function profileView() {
   const fmt = (n) => n.toLocaleString("fr-FR").replace(/\u202f/g, "\u00a0");
@@ -1797,7 +1798,7 @@ function weekLabel(d = new Date()) {
 }
 const inviteUrl = (code) => location.origin + location.pathname + "?g=" + code;
 async function shareInvite(g, btn) {
-  const url = inviteUrl(g.code), text = `Rejoins « ${g.name} » sur Aura : 3 questions par jour sur l'actu, et un classement entre nous.`;
+  const url = g ? inviteUrl(g.code) : location.origin + location.pathname, text = g ? `Rejoins « ${g.name} » sur Aura : 3 questions par jour sur l'actu, et un classement entre nous.` : `Rejoins-moi sur Aura : 3 questions par jour sur l'actu, et un classement entre nous.`;
   track("invitation-partagee", "classement");
   if (navigator.share) { try { await navigator.share({ title: "Aura", text, url }); return; } catch (e) { if (e.name === "AbortError") return; } }
   try { await navigator.clipboard.writeText(text + " " + url); btn.textContent = "Lien copié"; setTimeout(() => { btn.textContent = "Inviter des amis"; }, 2200); }
@@ -1841,7 +1842,7 @@ function friendsView() {
   // 1. Pas encore de pseudo
   if (!profile.sbReady) {
     const box = $(`<div class="fr-page">
-      <p class="fr-lead">${profile.pendingJoin ? "Choisis un pseudo pour rejoindre le groupe de tes amis." : "Joue contre tes amis. Choisis un pseudo : il s'affichera dans le classement de tes groupes."}</p>
+      <p class="fr-lead">${profile.pendingJoin ? "Choisis un pseudo pour rejoindre le groupe de tes amis." : "Choisis un pseudo pour entrer dans le Palmarès. Les autres joueurs verront ton pseudo et ton aura de la semaine."}</p>
       <input class="fr-input" id="frPseudo" maxlength="20" autocomplete="nickname" placeholder="Ton pseudo" aria-label="Ton pseudo">
       <button class="btn btn-play" type="button" id="frGo">Valider</button>
     </div>`);
@@ -1862,42 +1863,28 @@ function friendsView() {
       // Lien d'invitation en attente : on rejoint le groupe d'abord.
       if (profile.pendingJoin) {
         const code = profile.pendingJoin; profile.pendingJoin = null; saveProfile();
-        try { const name = await sb("rpc/join_group", { method: "POST", body: { group_code: code } }); profile.curGroup = code; saveProfile(); frToast = `Bienvenue dans « ${name} » !`; track("groupe-rejoint", "classement"); }
+        try { const name = await sb("rpc/join_group", { method: "POST", body: { group_code: code } }); profile.board = code; saveProfile(); frToast = `Bienvenue dans « ${name} » !`; track("groupe-rejoint", "classement"); }
         catch (e) { frToast = ""; body.prepend($(`<p class="fr-err" role="alert">${esc(sbMsg(e))}</p>`)); }
       }
       const groups = await sb("groups?select=name,code&order=created_at");
       body.querySelector(".fr-note").remove();
       if (frToast) { body.appendChild($(`<p class="fr-toast">${esc(frToast)}</p>`)); frToast = ""; }
-      // 2. Pas encore de groupe
-      if (!groups.length) {
-        const box = $(`<div class="card">
-          <b>Crée ton groupe</b>
-          <p class="small">Donne-lui un nom, puis envoie le lien d'invitation à tes amis.</p>
-          <input class="fr-input" id="frName" maxlength="40" placeholder="Par exemple : la Zizanie" aria-label="Nom du groupe">
-          <button class="btn btn-play" type="button" id="frCreate">Créer le groupe</button>
-        </div>`);
-        box.querySelector("#frCreate").onclick = async (ev) => {
-          const v = box.querySelector("#frName").value.trim();
-          if (v.length < 2) return err(box, "Le nom doit faire au moins 2 caractères.");
-          ev.target.disabled = true;
-          try { profile.curGroup = await sb("rpc/create_group", { method: "POST", body: { group_name: v } }); saveProfile(); track("groupe-cree", "classement"); frToast = "Groupe créé. Invite tes amis avec le lien."; render(); }
-          catch (e) { ev.target.disabled = false; err(box, sbMsg(e)); }
-        };
-        body.appendChild(box);
-        body.appendChild($(`<p class="fr-note">Tu as reçu un lien d'invitation ? Ouvre-le : tu rejoindras le groupe.</p>`));
-        return;
-      }
-      // 3. Le classement
-      const g = groups.find((x) => x.code === profile.curGroup) || groups[0];
-      if (groups.length > 1) {
+      // 2. Le Palmarès : tous les joueurs par défaut, les groupes en filtre (décision du 26/11).
+      const g = groups.find((x) => x.code === profile.board) || null;
+      if (groups.length) {
         const chips = $(`<div class="fr-chips"></div>`);
-        groups.forEach((x) => { const c = $(`<button type="button" class="fr-chip${x.code === g.code ? " on" : ""}">${esc(x.name)}</button>`); c.onclick = () => { profile.curGroup = x.code; saveProfile(); render(false); }; chips.appendChild(c); });
+        [{ name: "Tous", code: "all" }, ...groups].forEach((x) => { const on = g ? x.code === g.code : x.code === "all"; const c = $(`<button type="button" class="fr-chip${on ? " on" : ""}">${esc(x.name)}</button>`); c.onclick = () => { profile.board = x.code; saveProfile(); render(false); }; chips.appendChild(c); });
         body.appendChild(chips);
-      } else body.appendChild($(`<p class="fr-group">${esc(g.name)}</p>`));
+      }
+      body.appendChild($(`<p class="fr-group">${g ? esc(g.name) : "Tous les joueurs"}</p>`));
       body.appendChild($(`<p class="fr-week">${weekLabel()}</p>`));
-      const rows = await sb("rpc/leaderboard", { method: "POST", body: { group_code: g.code } });
+      const rows = await sb("rpc/palmares", { method: "POST", body: { group_code: g ? g.code : null, week_start: iso(new Date()) } });
       const ol = $(`<ol class="fr-board"></ol>`);
+      let prev = -1;
       rows.forEach((r, k) => {
+        if (k >= 10 && !r.is_me) return;
+        if (k > prev + 1) ol.appendChild($(`<li class="fr-gap" aria-hidden="true">…</li>`));
+        prev = k;
         ol.appendChild($(`<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${r.week_aura > 0 && k < 3 ? frMedal(k) : k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}${frTitle(rows, k) ? `<em class="fr-title">${frTitle(rows, k)}</em>` : ""}</span>${r.streak > 0 ? `<button type="button" class="fr-streak" aria-label="${daysTxt(r.streak)} de série" data-n="${r.streak}">${STAR}${r.streak}</button>` : ""}<span class="fr-aura">${fmtN(r.week_aura)}</span></li>`));
       });
       body.appendChild(ol);
@@ -1906,8 +1893,8 @@ function friendsView() {
       const push = frPush(rows); if (push) body.appendChild(push);
       body.appendChild($(`<p class="fr-note">Ce qui compte : les questions du jour jouées le jour même, et les sujets creusés cette semaine.<br>Tout repart à zéro lundi.</p>`));
       const inv = $(`<button class="btn btn-play" type="button">Inviter des amis</button>`); inv.onclick = () => shareInvite(g, inv); if (tab === "friends") setCta(inv);
-      const more = $(`<button type="button" class="fr-link">Créer un autre groupe</button>`);
-      more.onclick = () => { const v = (prompt("Nom du nouveau groupe :") || "").trim(); if (v.length < 2) return; sb("rpc/create_group", { method: "POST", body: { group_name: v } }).then((code) => { profile.curGroup = code; saveProfile(); render(false); }).catch((e) => alert(sbMsg(e))); };
+      const more = $(`<button type="button" class="fr-link">${groups.length ? "Créer un autre groupe" : "Créer un groupe entre amis"}</button>`);
+      more.onclick = () => { const v = (prompt("Nom du groupe :") || "").trim(); if (v.length < 2) return; sb("rpc/create_group", { method: "POST", body: { group_name: v } }).then((code) => { profile.board = code; saveProfile(); track("groupe-cree", "classement"); frToast = "Groupe créé. Invite tes amis avec le lien."; render(false); }).catch((e) => alert(sbMsg(e))); };
       body.appendChild(more);
     } catch (e) { body.innerHTML = ""; body.appendChild($(`<p class="fr-err" role="alert">${esc(sbMsg(e))}</p>`)); const again = $(`<button type="button" class="fr-link">Réessayer</button>`); again.onclick = () => render(false); body.appendChild(again); }
   })();
@@ -2145,15 +2132,14 @@ async function showPalmares() {
   if (profile.palmaresSeen === key) return;
   try {
     const groups = await sb("groups?select=name,code&order=created_at");
-    const g = groups.find((x) => x.code === profile.curGroup) || groups[0];
-    if (!g) return;
-    const rows = await sb("rpc/palmares", { method: "POST", body: { group_code: g.code, week_start: key } });
+    const g = groups.find((x) => x.code === profile.board) || null;
+    const rows = await sb("rpc/palmares", { method: "POST", body: { group_code: g ? g.code : null, week_start: key } });
     profile.palmaresSeen = key; saveProfile();
     if (!rows.some((r) => r.week_aura > 0)) return;
-    const show = rows.map((r, k) => ({ r, k })).filter(({ r, k }) => frTitle(rows, k) || r.is_me);
+    const show = rows.map((r, k) => ({ r, k })).filter(({ r, k }) => (frTitle(rows, k) && (k < 3 || rows.length <= 10)) || r.is_me);
     const ov = $(`<div class="howto palm" role="dialog" aria-label="Palmarès de la semaine">
       <div class="howto-box">
-        <p class="eyebrow"><b>Palmarès de « ${esc(g.name)} »</b></p>
+        <p class="eyebrow"><b>${g ? `Palmarès de « ${esc(g.name)} »` : "Palmarès de la semaine"}</b></p>
         <p class="palm-week">${weekLabel(mon)}</p>
         <ol class="fr-board">${show.map(({ r, k }) => `<li class="fr-row${r.is_me ? " me" : ""}"><span class="fr-rank">${r.week_aura > 0 && k < 3 ? frMedal(k) : k + 1}</span><span class="fr-name">${esc(r.pseudo)}${r.is_me ? "<small>toi</small>" : ""}${frTitle(rows, k) ? `<em class="fr-title">${frTitle(rows, k)}</em>` : ""}</span><span class="fr-aura">${fmtN(r.week_aura)}</span></li>`).join("")}</ol>
         <p class="small">Nouvelle semaine : tout repart à zéro.</p>
