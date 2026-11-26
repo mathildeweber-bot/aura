@@ -570,46 +570,8 @@ body.has-cta { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
 @media (prefers-reduced-motion: reduce) { .celebrate, .cel-halo, .cel-title, .cel-sub, .cel-note { animation: none !important; } }
 @media (prefers-reduced-motion: reduce) { .aura-pill.bump { animation: none; } * { transition: none !important; } }
 
-/* Tableau de bord (26/11) */
-body.tdb-on .wrap { max-width: 980px; }
-.tdb { display: flex; flex-direction: column; gap: 14px; }
-.tdb-sub { margin: -6px 0 0; font-size: 13px; color: var(--muted); }
-.tdb-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-.tdb-tile { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.tdb-tile b { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.tdb-tile span { font-size: 14px; font-weight: 600; }
-.tdb-tile small { font-size: 12px; color: var(--muted); }
-.tdb-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.tdb-card h2 { margin: 0; font-size: 18px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.tdb-card h2 small { font-size: 12px; font-weight: 600; color: var(--muted); }
-.tdb-card h3 { margin: 6px 0 0; font-size: 14px; color: var(--muted); font-weight: 600; }
-.tdb-chart { width: 100%; height: auto; max-height: 210px; display: block; }
-.tdb-chart .tdb-v { font-size: 13px; font-weight: 700; fill: var(--ink); }
-.tdb-chart .tdb-l { font-size: 12px; fill: var(--muted); }
-.tdb-funnel { display: flex; flex-direction: column; gap: 8px; }
-.tdb-step { display: grid; grid-template-columns: minmax(110px, 1.2fr) 2fr 52px 44px; gap: 10px; align-items: center; font-size: 14px; }
-.tdb-step b { text-align: right; font-variant-numeric: tabular-nums; }
-.tdb-step small { color: var(--muted); font-size: 12px; text-align: right; }
-.tdb-track { height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; }
-.tdb-track i { display: block; height: 100%; border-radius: 999px; background: #e0457b; }
-.tdb-mini { display: flex; flex-wrap: wrap; gap: 8px; }
-.tdb-mini span { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; font-size: 13px; }
-.tdb-mini b { margin-left: 4px; font-size: 15px; }
-.tdb-table { overflow-x: auto; }
-.tdb-table table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
-.tdb-table th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; padding: 6px 10px 8px 0; white-space: nowrap; }
-.tdb-table td { padding: 8px 10px 8px 0; border-top: 1px solid var(--line); white-space: nowrap; }
-.tdb-strip { display: inline-flex; gap: 2px; }
-.tdb-strip i, .tdb-legend i { width: 9px; height: 16px; border-radius: 3px; background: var(--line); display: inline-block; }
-.tdb-strip i.c-play, .tdb-legend i.c-play { background: #e0457b; }
-.tdb-strip i.c-dig, .tdb-legend i.c-dig { background: var(--menthe); }
-.tdb-legend { margin: 0; display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
-.tdb-legend span { display: inline-flex; align-items: center; gap: 6px; }
-.tdb-st { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 9px; }
-.tdb-st.st-ok { background: var(--good-soft, #dff3e4); color: var(--good); }
-.tdb-st.st-warn { background: #fdf0d9; color: #8a5a00; }
-.tdb-st.st-off { background: var(--line); color: var(--muted); }
-@media (max-width: 520px) { .tdb-step { grid-template-columns: 1fr 1fr 44px; } .tdb-step small { display: none; } }
+.field-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--muted); }
+.field-check input { margin-top: 2px; width: 18px; height: 18px; accent-color: #e0457b; }
 </style>
 </head>
 <body>
@@ -1155,7 +1117,45 @@ function reset() {
 }
 if (/netlify\.app$/.test(location.hostname)) document.documentElement.classList.add("on-netlify");
 // Mesure d'audience anonyme (GoatCounter), active seulement sur le vrai site.
-function track(name, sub) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name + "/" + (sub || dayKey()), title: name, event: true }); } catch (e) {} }
+function track(name, sub, props) {
+  try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name + "/" + (sub || dayKey()), title: name, event: true }); } catch (e) {}
+  try { if (window.posthog && window.posthog.__loaded) window.posthog.capture(name, { detail: sub || dayKey(), ...(props || {}) }); } catch (e) {}
+}
+// PostHog (26/11) : suivi par joueur, seulement si la personne a dit oui (règle CNIL), et seulement sur le vrai site.
+// Pas de cookies (stockage local), pas d'enregistrement d'écran, pas de clics automatiques.
+const PH_KEY = "phc_vq5uVcFghkoczZPndEieDrGz3kGDAKnQZZQD8MPzNXya";
+function phStart() {
+  if (profile.phConsent !== "oui" || !/github\.io$/.test(location.hostname) || window.posthog) return;
+  const sc = document.createElement("script"); sc.async = true; sc.src = "https://eu-assets.i.posthog.com/static/array.js";
+  sc.onload = () => { try {
+    window.posthog.init(PH_KEY, { api_host: "https://eu.i.posthog.com", person_profiles: "always", persistence: "localStorage", autocapture: false, disable_session_recording: true, capture_pageview: true });
+    phIdentify();
+  } catch (e) {} };
+  document.head.appendChild(sc);
+}
+function phIdentify() {
+  try {
+    if (!window.posthog || !window.posthog.__loaded) return;
+    if (sbSession && profile.sbReady) window.posthog.identify(sbSession.uid, { pseudo: profile.name });
+    window.posthog.setPersonProperties({ serie: currentStreak(), aura: totalAura(), jours_joues: Object.keys(profile.days).length });
+  } catch (e) {}
+}
+function phConsentAsk() {
+  if (profile.phConsent || document.querySelector(".howto")) return;
+  const ov = $(`<div class="howto" role="dialog" aria-label="Aider à améliorer Aura">
+    <div class="howto-box">
+      <p class="eyebrow"><b>Une petite question</b></p>
+      <h1 class="hook">Tu nous aides à améliorer Aura ?</h1>
+      <p>On aimerait voir comment tu joues : tes parties, les sujets que tu creuses, les boutons que tu touches. Rien d'autre, et rien n'est revendu.</p>
+      <button class="btn btn-play" type="button" id="phYes">Oui, avec plaisir</button>
+      <button class="fr-link" type="button" id="phNo">Non merci</button>
+    </div>
+  </div>`);
+  const done = (v) => { profile.phConsent = v; saveProfile(); ov.remove(); if (v === "oui") phStart(); };
+  ov.querySelector("#phYes").onclick = () => done("oui");
+  ov.querySelector("#phNo").onclick = () => done("non");
+  document.body.appendChild(ov);
+}
 document.addEventListener("click", (e) => { const a = e.target.closest && e.target.closest(".more a:not(.btn), .sum-body a, .sheet-link"); if (a) track("source-ouverte"); });
 const $ = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstElementChild; };
 // Typographie française (24/11) : espace insécable avant % : ; ? ! » et après «, pour qu'aucun signe ne passe seul à la ligne.
@@ -1232,7 +1232,7 @@ function profileView() {
       <div><b>${daysTxt(bestStreak())}</b><span>record</span></div>
       <div><b>${profile.jokers || 0}</b><span>joker${(profile.jokers || 0) > 1 ? "s" : ""}</span></div>
     </div>
-    ${profile.isAdmin ? `<button type="button" class="fr-link" id="goTdb" style="align-self:flex-start">Tableau de bord</button>` : ""}
+    <label class="field-check" for="phOk"><input type="checkbox" id="phOk"${profile.phConsent === "oui" ? " checked" : ""}> Aider à améliorer Aura (suivi de mon activité dans le jeu)</label>
     <p class="small">Aura : ${fmt(dayAura)} du jour, ${fmt(digAura())} de Creuser, ${fmt(profile.mBonus || 0)} de paliers.</p>
     <h2 class="page-title" style="font-size:19px" id="rules">Règles du jeu</h2>
     <div class="card rules"></div>
@@ -1244,7 +1244,7 @@ function profileView() {
   ni.addEventListener("input", () => { profile.name = ni.value.trim(); state.name = profile.name; saveProfile(); });
   ni.addEventListener("change", () => { if (profile.sbReady && profile.name.length >= 2) sbUpdatePlayer({ pseudo: profile.name }); });
   el.querySelector(".dig-back").onclick = () => { auraSub = null; render(); };
-  const gt = el.querySelector("#goTdb"); if (gt) gt.onclick = () => { tab = "tdb"; render(); };
+  el.querySelector("#phOk").onchange = (ev) => { profile.phConsent = ev.target.checked ? "oui" : "non"; saveProfile(); if (ev.target.checked) { if (window.posthog && window.posthog.__loaded) window.posthog.opt_in_capturing(); else phStart(); } else { try { window.posthog && window.posthog.opt_out_capturing(); } catch (e) {} } };
   if (openRules) { openRules = false; setTimeout(() => { const r = document.getElementById("rules"); if (r) r.scrollIntoView({ block: "start" }); }, 50); }
   return el;
 }
@@ -1294,7 +1294,6 @@ function render(scroll = true) {
   document.body.classList.toggle("step-eclat", playQuiz && state.step === "streak");
   document.body.classList.toggle("step-gift", playQuiz && state.step === "gift");
   document.querySelector("header.top").hidden = inQuiz;
-  document.body.classList.toggle("tdb-on", tab === "tdb");
   document.getElementById("quizbar").hidden = !((playQuiz && state.step === "q") || (digQuiz && dig.step === "q"));
   document.getElementById("quizDay").hidden = document.getElementById("quizbar").hidden;
   setAura(false); setProgress();
@@ -1305,7 +1304,6 @@ function render(scroll = true) {
   clearCta(); closeSheet();
   if (tab === "dig") screen.appendChild({ list: digListView, home: digHomeView, sources: digSourcesView, q: digQuestionView, end: digEndView }[dig.step]());
   else if (tab === "friends") screen.appendChild(friendsView());
-  else if (tab === "tdb") screen.appendChild(tdbView());
   else if (tab === "aura") screen.appendChild(auraSub === "past" ? pastView() : auraSub === "profile" ? profileView() : auraView());
   else if (state.step === "intro") screen.appendChild(introView());
   else if (state.step === "q") screen.appendChild(questionView());
@@ -1651,7 +1649,8 @@ function finishDay() {
     if (n > 0 && n % 7 === 0) state.gift = grantJoker("serie-" + dayKey()) ? "now" : "full";
   }
   saveProfile();
-  track(dayKey() === iso(new Date()) ? "partie-terminee" : "jour-rattrape");
+  track(dayKey() === iso(new Date()) ? "partie-terminee" : "jour-rattrape", null, { bonnes_reponses: good, jour_meme: dayKey() === iso(new Date()) });
+  phIdentify();
   sbSync();
 }
 
@@ -1814,7 +1813,7 @@ const sbMsg = (e) => (e && e.code === "P0001" ? e.message : navigator.onLine ===
 async function sbRegister(pseudo) {
   await sbToken();
   await sb("players?on_conflict=id", { method: "POST", body: { id: sbSession.uid, pseudo, streak: currentStreak() }, prefer: "resolution=merge-duplicates" });
-  profile.name = pseudo; profile.sbReady = 1; saveProfile(); track("pseudo-choisi", "classement");
+  profile.name = pseudo; profile.sbReady = 1; saveProfile(); track("pseudo-choisi", "classement"); phIdentify();
   await sbSync();
 }
 async function sbUpdatePlayer(fields) { try { await sb("players?id=eq." + sbSession.uid, { method: "PATCH", body: fields }); } catch (e) {} }
@@ -1942,120 +1941,6 @@ function friendsView() {
       more.onclick = () => { const v = (prompt("Nom du groupe :") || "").trim(); if (v.length < 2) return; sb("rpc/create_group", { method: "POST", body: { group_name: v } }).then((code) => { profile.board = code; saveProfile(); track("groupe-cree", "classement"); frToast = "Groupe créé. Invite tes amis avec le lien."; render(false); }).catch((e) => alert(sbMsg(e))); };
       body.appendChild(more);
     } catch (e) { body.innerHTML = ""; body.appendChild($(`<p class="fr-err" role="alert">${esc(sbMsg(e))}</p>`)); const again = $(`<button type="button" class="fr-link">Réessayer</button>`); again.onclick = () => render(false); body.appendChild(again); }
-  })();
-  return el;
-}
-
-// ---- Tableau de bord de Mathilde (26/11) : page cachée, adresse ?tdb ----
-// Supabase : fonction admin_stats, réservée aux comptes de la table admins (supabase/04-tableau-de-bord.sql).
-// GoatCounter : clé de lecture créée par Mathilde, gardée sur son appareil seulement.
-const GC_SITE = "https://on-aura-tout-vu.goatcounter.com";
-const tdbGet = (k) => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
-const tdbSet = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} };
-const tdbPct = (a, b) => (b ? Math.round((100 * a) / b) + " %" : "–");
-const tdbShortDay = (k) => { const d = new Date(k + "T12:00:00"); return ["D", "L", "M", "M", "J", "V", "S"][d.getDay()] + " " + d.getDate(); };
-const tdbAddDays = (k, n) => { const d = new Date(k + "T12:00:00"); d.setDate(d.getDate() + n); return iso(d); };
-const tdbLocalDay = (ts) => iso(new Date(ts));
-function tdbBars(vals, labels, color, fmt = (v) => v) {
-  const W = 560, H = 150, n = vals.length, bw = W / n, max = Math.max(1, ...vals);
-  return `<svg class="tdb-chart" viewBox="0 0 ${W} ${H + 34}" role="img">${vals.map((v, k) => { const h = Math.round((v / max) * H); const x = k * bw + 4; return `<rect x="${x}" y="${H - h + 16}" width="${bw - 8}" height="${Math.max(h, v ? 2 : 0)}" rx="4" fill="${color}"/>${v ? `<text x="${x + (bw - 8) / 2}" y="${H - h + 11}" text-anchor="middle" class="tdb-v">${fmt(v)}</text>` : ""}<text x="${x + (bw - 8) / 2}" y="${H + 31}" text-anchor="middle" class="tdb-l">${labels[k]}</text>`; }).join("")}</svg>`;
-}
-async function gcFetch(path) {
-  const r = await fetch(GC_SITE + "/api/v0/" + path, { headers: { Authorization: "Bearer " + tdbGet("aura-gc-cle") } });
-  if (r.status === 401 || r.status === 403) throw new Error("La clé GoatCounter est refusée. Vérifie qu'elle a le droit « lire les statistiques ».");
-  if (!r.ok) throw new Error("GoatCounter ne répond pas (" + r.status + ").");
-  return r.json();
-}
-function tdbView() {
-  const el = $(`<section class="tdb"><h1 class="dig-title">Tableau de bord</h1><p class="fr-note" style="text-align:left">Chargement…</p></section>`);
-  (async () => {
-    let S;
-    try { S = await sb("rpc/admin_stats", { method: "POST", body: {} }); }
-    catch (e) { el.querySelector(".fr-note").textContent = e.code === "P0001" ? "Accès réservé. Ce compte n'est pas dans la liste des admins (script 04 dans Supabase)." : sbMsg(e); return; }
-    profile.isAdmin = 1; saveProfile();
-    el.querySelector(".fr-note").remove();
-    const today = iso(new Date()), last14 = Array.from({ length: 14 }, (_, k) => tdbAddDays(today, k - 13)), last7 = last14.slice(7);
-    const P = {}; S.players.forEach((p) => { P[p.id] = { ...p, day0: tdbLocalDay(p.created), act: new Set(), onTime: 0, days: 0, good: 0, digQ: 0, digDays: new Set(), playDays: new Set() }; });
-    S.days.forEach((d) => { const p = P[d.p]; if (!p) return; const k = tdbLocalDay(d.c); p.act.add(k); p.playDays.add(k); p.days++; p.good += d.g; if (d.t) p.onTime++; });
-    S.digs.forEach((d) => { const p = P[d.p]; if (!p) return; const k = tdbLocalDay(d.c); p.act.add(k); p.digDays.add(k); if (d.q >= 0) p.digQ++; });
-    const all = Object.values(P), active = (k) => all.filter((p) => p.act.has(k)).length;
-    const dau = last14.map(active), wau = all.filter((p) => last7.some((k) => p.act.has(k))).length;
-    const avgDau7 = dau.slice(7).reduce((a, b) => a + b, 0) / 7;
-    const ret = (n) => { const c = all.filter((p) => p.day0 <= tdbAddDays(today, -n)); return { n: c.length, r: c.filter((p) => p.act.has(tdbAddDays(p.day0, n))).length }; };
-    const r1 = ret(1), r7 = ret(7);
-    const newP = all.filter((p) => p.day0 >= last7[0]).length;
-    const totDays = S.days.length, onTime = S.days.filter((d) => d.t).length, goodSum = S.days.reduce((a, d) => a + d.g, 0);
-    const lastAct = (p) => [...p.act].sort().pop() || p.day0, gap = (p) => Math.round((new Date(today + "T12:00:00") - new Date(lastAct(p) + "T12:00:00")) / 864e5);
-    const status = (p) => (!p.act.size ? ["Jamais joué", "st-off"] : gap(p) <= 1 ? ["Actif", "st-ok"] : gap(p) <= 6 ? ["À relancer", "st-warn"] : ["Parti", "st-off"]);
-    const atRisk = all.filter((p) => p.act.size && gap(p) >= 2 && gap(p) <= 6).length;
-    const tile = (v, l, s = "") => `<div class="tdb-tile"><b>${v}</b><span>${l}</span>${s ? `<small>${s}</small>` : ""}</div>`;
-    el.appendChild($(`<p class="tdb-sub">Mis à jour ${new Date(S.now).toLocaleString("fr-FR", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}. Les joueurs comptés sont ceux qui ont choisi un pseudo.</p>`));
-    el.appendChild($(`<div class="tdb-tiles">
-      ${tile(dau[13], "joueurs actifs aujourd'hui", `hier : ${dau[12]}`)}
-      ${tile(wau, "actifs sur 7 jours", `sur ${all.length} joueurs`)}
-      ${tile(tdbPct(avgDau7, wau), "fidélité quotidienne", "actifs du jour ÷ actifs de la semaine")}
-      ${tile(tdbPct(r1.r, r1.n), "reviennent le lendemain", `J1, sur ${r1.n} joueurs`)}
-      ${tile(tdbPct(r7.r, r7.n), "reviennent 7 jours après", `J7, sur ${r7.n} joueurs`)}
-      ${tile(newP, "nouveaux joueurs", "ces 7 derniers jours")}
-    </div>`));
-    // Audience et entonnoir (GoatCounter)
-    const gc = $(`<div class="card tdb-card"><h2>Audience et entonnoir <small>GoatCounter</small></h2><div class="tdb-gc"></div></div>`);
-    el.appendChild(gc);
-    const gcBox = gc.querySelector(".tdb-gc");
-    const gcForm = (msg) => {
-      gcBox.innerHTML = `<p class="small">${msg || "Pour voir les visites et l'entonnoir, colle ici une clé de lecture GoatCounter. Elle reste sur cet appareil."}</p><p class="small">Dans GoatCounter : Settings, puis API, puis « New API key », avec seulement « Read statistics ».</p><input class="fr-input" id="gcKey" type="password" autocomplete="off" placeholder="Clé GoatCounter" aria-label="Clé GoatCounter"><button class="btn" type="button" id="gcSave">Enregistrer</button>`;
-      gcBox.querySelector("#gcSave").onclick = () => { tdbSet("aura-gc-cle", gcBox.querySelector("#gcKey").value.trim()); loadGc(); };
-    };
-    const loadGc = async () => {
-      if (!tdbGet("aura-gc-cle")) return gcForm();
-      gcBox.innerHTML = `<p class="small">Chargement…</p>`;
-      try {
-        const q = `start=${last14[0]}&end=${today}`;
-        const [tot, hits] = await Promise.all([gcFetch(`stats/total?${q}`), gcFetch(`stats/hits?${q}&limit=100`)]);
-        const byDay = {}; (tot.stats || []).forEach((s) => { byDay[s.day] = s.daily; });
-        const ev = {}; (hits.hits || []).forEach((h) => { if (!h.event) return; const name = String(h.path || "").replace(/^\//, "").split("/")[0]; ev[name] = ev[name] || { d14: 0, d7: 0 }; (h.stats || []).forEach((s) => { ev[name].d14 += s.daily; if (s.day >= last7[0]) ev[name].d7 += s.daily; }); });
-        const visits7 = last7.reduce((a, k) => a + (byDay[k] || 0), 0), e7 = (n) => (ev[n] ? ev[n].d7 : 0);
-        const steps = [["Visites", visits7], ["Parties commencées", e7("partie-commencee")], ["Pseudos choisis", e7("pseudo-choisi")], ["Invitations partagées", e7("invitation-partagee")], ["Groupes rejoints", e7("groupe-rejoint")]];
-        const top = Math.max(1, steps[0][1]);
-        gcBox.innerHTML = `<h3>Visites par jour</h3>${tdbBars(last14.map((k) => byDay[k] || 0), last14.map(tdbShortDay), "#e0457b")}
-          <h3>Entonnoir des 7 derniers jours</h3><div class="tdb-funnel">${steps.map(([l, v], k) => `<div class="tdb-step"><span>${l}</span><div class="tdb-track"><i style="width:${Math.max(2, (100 * v) / top)}%"></i></div><b>${fmtN(v)}</b><small>${k ? tdbPct(v, steps[k - 1][1]) : ""}</small></div>`).join("")}</div>
-          <h3>Autres actions, 7 derniers jours</h3><div class="tdb-mini">${[["Sources ouvertes", "source-ouverte"], ["Scores partagés", "score-partage"], ["Sujets creusés commencés", "creuser-commence"], ["Sujets creusés terminés", "creuser-termine"], ["Palmarès du lundi vus", "palmares-vu"]].map(([l, n]) => `<span>${l} <b>${fmtN(e7(n))}</b></span>`).join("")}</div>
-          <button type="button" class="fr-link" id="gcForget">Changer de clé GoatCounter</button>`;
-        gcBox.querySelector("#gcForget").onclick = () => { tdbSet("aura-gc-cle", ""); gcForm(); };
-      } catch (e) { gcForm(e.message); }
-    };
-    loadGc();
-    // Activité
-    el.appendChild($(`<div class="card tdb-card"><h2>Joueurs actifs par jour <small>Supabase</small></h2>${tdbBars(dau, last14.map(tdbShortDay), "#111111")}<p class="small">Un joueur est actif s'il a joué les questions du jour ou creusé un sujet ce jour-là.</p></div>`));
-    // Questions du jour
-    const byCard = {}; S.days.forEach((d) => { byCard[d.d] = byCard[d.d] || { n: 0, g: 0 }; byCard[d.d].n++; byCard[d.d].g += d.g; });
-    const cardDays = last14.filter((k) => byCard[k]);
-    el.appendChild($(`<div class="card tdb-card"><h2>Questions du jour <small>Supabase</small></h2>
-      <div class="tdb-mini"><span>Parties jouées <b>${fmtN(totDays)}</b></span><span>Jouées le jour même <b>${tdbPct(onTime, totDays)}</b></span><span>Bonnes réponses <b>${tdbPct(goodSum, 3 * totDays)}</b></span></div>
-      <h3>Taux de bonnes réponses par jour</h3>${cardDays.length ? tdbBars(cardDays.map((k) => Math.round((100 * byCard[k].g) / (3 * byCard[k].n))), cardDays.map(tdbShortDay), "#d0679a", (v) => v + "%") : `<p class="small">Pas encore de parties.</p>`}
-      <p class="small">Au-dessus de 80 %, les questions sont sans doute trop faciles. En dessous de 40 %, trop dures.</p></div>`));
-    // Creuser
-    const themes = {}; S.digs.forEach((d) => { if (d.q >= 0) themes[d.th] = (themes[d.th] || 0) + 1; });
-    const topThemes = Object.entries(themes).sort((a, b) => b[1] - a[1]).slice(0, 6);
-    const tName = (id) => (CREUSER.find((t) => t.id === id) || { name: id }).name;
-    const diggers = all.filter((p) => p.digQ > 0).length;
-    el.appendChild($(`<div class="card tdb-card"><h2>Creuser <small>Supabase</small></h2>
-      <div class="tdb-mini"><span>Joueurs qui ont creusé <b>${tdbPct(diggers, all.length)}</b></span><span>Questions creusées <b>${fmtN(S.digs.filter((d) => d.q >= 0).length)}</b></span><span>Sujets parfaits <b>${fmtN(S.digs.filter((d) => d.q === -1).length)}</b></span></div>
-      ${topThemes.length ? `<h3>Sujets les plus creusés</h3><div class="tdb-funnel">${topThemes.map(([id, v]) => `<div class="tdb-step"><span>${esc(tName(id))}</span><div class="tdb-track"><i style="width:${(100 * v) / topThemes[0][1]}%;background:var(--menthe)"></i></div><b>${v}</b><small></small></div>`).join("")}</div>` : ""}</div>`));
-    // Groupes et bouche-à-oreille
-    const invited = S.members.filter((m) => { const g = S.groups.find((x) => x.id === m.g); return g && g.by !== m.p; }).length;
-    el.appendChild($(`<div class="card tdb-card"><h2>Groupes et bouche-à-oreille <small>Supabase</small></h2>
-      <div class="tdb-mini"><span>Groupes <b>${S.groups.length}</b></span><span>Joueurs dans un groupe <b>${tdbPct(new Set(S.members.map((m) => m.p)).size, all.length)}</b></span><span>Arrivées par un lien d'invitation <b>${invited}</b></span></div>
-      ${S.groups.length ? `<p class="small">${S.groups.map((g) => `${esc(g.name)} : ${S.members.filter((m) => m.g === g.id).length} joueurs`).join(" · ")}</p>` : ""}</div>`));
-    // Joueurs
-    const rows = all.sort((a, b) => (lastAct(b) > lastAct(a) ? 1 : lastAct(b) < lastAct(a) ? -1 : b.act.size - a.act.size));
-    el.appendChild($(`<div class="card tdb-card"><h2>Les joueurs <small>${all.length} joueurs, ${atRisk} à relancer</small></h2>
-      <p class="tdb-legend"><span><i class="c-play"></i>Questions du jour</span><span><i class="c-dig"></i>Creuser seulement</span><span><i></i>Rien</span></p>
-      <div class="tdb-table"><table><thead><tr><th>Joueur</th><th>Statut</th><th>14 derniers jours</th><th>Jours actifs</th><th>Le jour même</th><th>Réussite</th><th>Creuser</th><th>Série</th><th>Inscrit le</th></tr></thead><tbody>
-      ${rows.map((p) => { const [st, cls] = status(p); return `<tr><td><b>${esc(p.pseudo)}</b></td><td><span class="tdb-st ${cls}">${st}</span></td><td><span class="tdb-strip">${last14.map((k) => `<i class="${p.playDays.has(k) ? "c-play" : p.digDays.has(k) ? "c-dig" : ""}" title="${k}"></i>`).join("")}</span></td><td>${p.act.size}</td><td>${tdbPct(p.onTime, p.days)}</td><td>${tdbPct(p.good, 3 * p.days)}</td><td>${p.digQ}</td><td>${p.streak}</td><td>${new Date(p.created).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</td></tr>`; }).join("")}
-      </tbody></table></div>
-      <p class="small">Actif : vu aujourd'hui ou hier. À relancer : pas vu depuis 2 à 6 jours. Parti : 7 jours ou plus.</p></div>`));
-    el.appendChild($(`<p class="small tdb-sub">Repères (a16z, applis grand public) : J1 correct à 50 %, très bon à 70 %. J7 correct à 35 %, très bon à 50 %. Une fidélité quotidienne au-dessus de 20 % est saine.</p>`));
   })();
   return el;
 }
@@ -2207,6 +2092,7 @@ function digVerdict(t, c, ok, i) {
   profile.dig[t.id] = rec;
   // Classement (25/11) : l'aura de Creuser compte pour la semaine où elle est gagnée.
   if (profile.sbReady && (gain || perfect)) { profile.sbDig = profile.sbDig || []; if (gain) profile.sbDig.push({ t: t.id, q: i }); if (perfect) profile.sbDig.push({ t: t.id, q: -1 }); }
+  track("question-creusee", t.id, { reussie: !!ok, question: i + 1 });
   saveProfile(); sbSync();
   dig.reward = last ? { gotJoker, perfect } : null;
   if (gain) setAura(true);
@@ -2283,7 +2169,6 @@ reset();
 // Lien d'invitation (?g=code) : on le garde, on nettoie l'adresse, et on ouvre le Classement.
 { const g = new URLSearchParams(location.search).get("g");
   if (g && /^[a-z0-9]{4,16}$/i.test(g)) { profile.pendingJoin = g.toLowerCase(); saveProfile(); history.replaceState(null, "", location.pathname + location.hash); tab = "friends"; render(); } }
-if (new URLSearchParams(location.search).has("tdb")) { tab = "tdb"; render(); }
 sbSync();
 // Palmarès de la semaine passée (26/11) : le lundi (ou à la 1re ouverture de la semaine), une seule fois.
 async function showPalmares() {
@@ -2313,6 +2198,8 @@ async function showPalmares() {
   } catch (e) { /* sans réseau : on réessaiera à la prochaine ouverture */ }
 }
 setTimeout(showPalmares, 1400);
+phStart();
+setTimeout(phConsentAsk, 4000);
 // Premier lancement (23/11) : « Comment ça marche », une seule fois, après l'écran d'ouverture.
 if (!profile.seenIntro) setTimeout(() => {
   const ov = $(`<div class="howto" role="dialog" aria-label="Comment ça marche">
@@ -2325,7 +2212,7 @@ if (!profile.seenIntro) setTimeout(() => {
       <button class="btn btn-play" type="button"><span class="play-ico" aria-hidden="true">▶</span>C'est parti</button>
     </div>
   </div>`);
-  ov.querySelector(".btn").onclick = () => { profile.seenIntro = 1; saveProfile(); ov.remove(); };
+  ov.querySelector(".btn").onclick = () => { profile.seenIntro = 1; saveProfile(); ov.remove(); setTimeout(phConsentAsk, 600); };
   document.body.appendChild(ov);
 }, 1300);
 </script>
