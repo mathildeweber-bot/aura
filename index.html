@@ -272,6 +272,10 @@ body.in-quiz { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 .q-hook { margin: 0; font-family: var(--label); font-weight: 700; font-size: 16px; letter-spacing: 0.02em; color: var(--muted); }
 .q-text { margin: 0; font-size: 21px; line-height: 1.3; font-weight: 700; text-wrap: balance; }
 .q-chip { font-size: 13px; font-weight: 600; background: var(--tile); color: var(--ink); border-radius: 999px; padding: 4px 12px; }
+.q-chip.multi { display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 800; background: #e0457b; color: #ffffff; padding: 7px 16px 7px 12px; animation: chipPop .7s ease-in-out .3s 2; }
+.q-chip.multi svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes chipPop { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.12); } }
+@media (prefers-reduced-motion: reduce) { .q-chip.multi { animation: none; } }
 .ok-chip { background: var(--good-soft); color: var(--good); }
 .opts { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
 .opts.grid { display: grid; grid-template-columns: 1fr 1fr; }
@@ -1581,6 +1585,9 @@ const goodTxt = (c) => c.answer.map((key) => labelOf(c, key, keysOf(c).indexOf(k
 // Plusieurs bonnes réponses (24/11) : une ligne verte par réponse, au lieu d'une phrase coupée par des points-virgules.
 const goodHtml = (c) => (c.answer.length > 1 ? '<ul class="good-list">' + c.answer.map((key) => "<li>" + esc(labelOf(c, key, keysOf(c).indexOf(key))) + "</li>").join("") + "</ul>" : "<b>" + esc(goodTxt(c)) + "</b>");
 const goodLine = (c) => `<div class="sheet-good">${c.answer.length > 1 ? "Bonnes réponses" : "Bonne réponse"} : ${goodHtml(c)}</div>`;
+// Plusieurs réponses (27/11, retour de Mathilde) : l'indication doit sauter aux yeux.
+const MULTI_ICO = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><path d="m4.8 7 1.6 1.6L9.4 5.6"/><rect x="13" y="13" width="8" height="8" rx="2"/><path d="m14.8 17 1.6 1.6 3-3"/></svg>`;
+const chipHtml = (c) => (c.type !== "tf" && c.answer.length > 1 ? `<span class="q-chip multi">${MULTI_ICO}${chipOf(c)}</span>` : `<span class="q-chip">${chipOf(c)}</span>`);
 const chipOf = (c) => (c.type === "tf" ? "Vrai ou faux ?" : c.answer.length > 1 ? "Il y a " + c.answer.length + " bonnes réponses" : "Il y a 1 bonne réponse");
 
 function answersBox(c, r, small) {
@@ -1609,7 +1616,7 @@ function questionView() {
     <span class="theme-pill k-${kindOf(c.theme)}">${esc(c.theme)}</span>
     <p class="q-hook">${esc(c.hook)}</p>
     <h2 class="q-text">${esc(c.question)}</h2>
-    <span class="q-chip">${chipOf(c)}</span>
+    ${chipHtml(c)}
   </section>`);
   const box = answersBox(c, r, false);
   el.appendChild(box);
@@ -2086,7 +2093,7 @@ function digQuestionView() {
     <span class="theme-pill k-${t.color}">${esc(t.tag)}</span>
     <p class="q-hook">${esc(c.hook)}</p>
     <h2 class="q-text">${esc(c.question)}</h2>
-    <span class="q-chip">${chipOf(c)}</span>
+    ${chipHtml(c)}
   </section>`);
   const box = answersBox(c, null, false);
   el.appendChild(box);
