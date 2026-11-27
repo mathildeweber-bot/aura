@@ -576,6 +576,9 @@ body.has-cta { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
 
 .field-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--muted); }
 .field-check input { margin-top: 2px; width: 18px; height: 18px; accent-color: #e0457b; }
+.ph-ask p { margin: 0; font-size: 16px; }
+.ph-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.ph-btns .btn { margin: 0; width: 100%; }
 </style>
 </head>
 <body>
@@ -1181,13 +1184,14 @@ function phIdentify() {
 }
 function phConsentAsk() {
   if (profile.phConsent || document.querySelector(".howto")) return;
-  const ov = $(`<div class="howto" role="dialog" aria-label="Aider à améliorer Aura">
+  const ov = $(`<div class="howto ph-ask" role="dialog" aria-label="Suivi de ton activité">
     <div class="howto-box">
-      <p class="eyebrow"><b>Une petite question</b></p>
-      <h1 class="hook">Tu nous aides à améliorer Aura ?</h1>
-      <p>On aimerait voir comment tu joues : tes parties, les sujets que tu creuses, les boutons que tu touches. Rien d'autre, et rien n'est revendu.</p>
-      <button class="btn btn-play" type="button" id="phYes">Oui, avec plaisir</button>
-      <button class="fr-link" type="button" id="phNo">Non merci</button>
+      <h1 class="hook">Tu acceptes qu'on suive ton activité ?</h1>
+      <p>Pour améliorer Aura. Rien n'est revendu.</p>
+      <div class="ph-btns">
+        <button class="btn" type="button" id="phNo">Je refuse</button>
+        <button class="btn btn-play" type="button" id="phYes">J'accepte</button>
+      </div>
     </div>
   </div>`);
   const done = (v) => { profile.phConsent = v; saveProfile(); ov.remove(); if (v === "oui") phStart(); };
