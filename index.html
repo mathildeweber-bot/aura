@@ -579,6 +579,9 @@ body.has-cta { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
 .ph-ask p { margin: 0; font-size: 16px; }
 .ph-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
 .ph-btns .btn { margin: 0; width: 100%; }
+.ps-card { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 360px; margin-top: 14px; text-align: left; }
+.ps-card .btn { margin: 0; }
+.ps-card .fr-link { align-self: center; }
 </style>
 </head>
 <body>
@@ -1790,6 +1793,7 @@ function scoreView() {
     <ul class="score-lines" id="scoreLines"></ul>
     ${state.first ? `<p class="score-total">Ton aura totale : <b>${fmtN(totalAura())}</b></p>` : '<p class="score-total">Ce jour était déjà validé : pas de points en plus.</p>'}
     <div id="scoreWeek"></div>
+    <div id="scorePseudo"></div>
     <div class="score-links"><button type="button" class="score-link" id="seeAnswers">Voir mes réponses</button><button type="button" class="score-link" id="shareBtn">Partager mon score</button></div>
     <div class="share-box" id="shareBox" hidden><p class="small">Copie ce texte et colle-le dans le groupe :</p><textarea readonly aria-label="Texte à partager"></textarea></div>
   </section>`);
@@ -1803,6 +1807,25 @@ function scoreView() {
   // Sans écran de série (jour rattrapé ou déjà joué), la semaine reste ici.
   if (!(state.first && onTime)) { const wk = mineView(false); wk.classList.add("score-week"); wk.insertBefore($(`<p class="score-week-title">Ta semaine</p>`), wk.firstChild); if (state.first) { const t = tipOnce("rattrape", "Un jour rattrapé rapporte 300 aura par bonne réponse au lieu de 1 000, et ne prolonge pas ta série."); if (t) wk.appendChild($(t)); } el.querySelector("#scoreWeek").replaceWith(wk); }
   else el.querySelector("#scoreWeek").remove();
+  // Pseudo demandé après la partie (28/11, décision de Mathilde) : on fait jouer d'abord, on demande ensuite.
+  if (!profile.sbReady && profile.pseudoLater !== iso(new Date())) {
+    const box = $(`<div class="card ps-card">
+      <b>Bravo ! Choisis ton pseudo pour entrer dans le Palmarès</b>
+      <input class="fr-input" id="psName" maxlength="20" autocomplete="nickname" placeholder="Ton pseudo" aria-label="Ton pseudo">
+      <button class="btn btn-play" type="button" id="psGo">Valider</button>
+      <button class="fr-link" type="button" id="psLater">Plus tard</button>
+    </div>`);
+    const inp = box.querySelector("#psName"); inp.value = profile.name || "";
+    box.querySelector("#psGo").onclick = async (ev) => {
+      const v = inp.value.trim(), old = box.querySelector(".fr-err"); if (old) old.remove();
+      if (v.length < 2) { box.appendChild($(`<p class="fr-err" role="alert">Ton pseudo doit faire au moins 2 caractères.</p>`)); return; }
+      ev.target.disabled = true; ev.target.textContent = "Un instant…";
+      try { await sbRegister(v); sbSync(); box.replaceWith($(`<p class="fr-toast">Bienvenue dans le Palmarès, ${esc(v)} !</p>`)); }
+      catch (e) { ev.target.disabled = false; ev.target.textContent = "Valider"; box.appendChild($(`<p class="fr-err" role="alert">${esc(sbMsg(e))}</p>`)); }
+    };
+    box.querySelector("#psLater").onclick = () => { profile.pseudoLater = iso(new Date()); saveProfile(); box.remove(); };
+    el.querySelector("#scorePseudo").replaceWith(box);
+  } else el.querySelector("#scorePseudo").remove();
   if (good) setTimeout(confetti, 1050);
   el.querySelector("#seeAnswers").onclick = () => { state.step = "recap"; render(); };
   const shb = el.querySelector("#shareBtn"); shb.onclick = () => shareScore(profile.days[dayKey()], shb);
